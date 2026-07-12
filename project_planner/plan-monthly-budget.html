@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan: Monthly + Budget Improvements</title>
+<style>
+  :root {
+    --navy:#1A1A2E; --mid:#16213E; --card:#1E2A45; --card2:#243050;
+    --accent:#E94560; --gold:#F5A623; --green:#27AE60; --blue:#3498DB;
+    --white:#FFFFFF; --gray:#8892A4; --text:#E8ECF4;
+    --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--navy); color:var(--text); line-height:1.6; padding:2rem; max-width:1050px; margin:0 auto; }
+  h1 { font-size:1.7rem; font-weight:800; color:var(--white); margin-bottom:.4rem; }
+  h2 { font-size:1rem; font-weight:700; color:var(--white); margin-bottom:.75rem; }
+  h3 { font-size:.88rem; font-weight:700; color:var(--white); margin-bottom:.4rem; }
+  .badge { display:inline-block; background:rgba(233,69,96,.15); border:1px solid rgba(233,69,96,.4); color:var(--accent); font-size:.7rem; font-weight:700; letter-spacing:1.5px; padding:.2rem .75rem; border-radius:999px; text-transform:uppercase; margin-bottom:1rem; }
+  .subtitle { color:var(--gray); font-size:.9rem; margin-bottom:2rem; }
+  hr { border:none; border-top:1px solid var(--border); margin:2.5rem 0; }
+  code { background:rgba(255,255,255,.08); border-radius:4px; padding:.1rem .35rem; font-size:.8rem; color:var(--gold); font-family:'Consolas',monospace; }
+
+  /* UNDERSTAND CARDS */
+  .understand-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1rem; margin-top:1rem; }
+  .u-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; }
+  .u-card.confirmed { border-color:rgba(39,174,96,.3); }
+  .u-card.question  { border-color:rgba(245,166,35,.3); }
+  .u-tag { font-size:.68rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:.2rem .55rem; border-radius:5px; margin-bottom:.65rem; display:inline-block; }
+  .tag-green  { background:rgba(39,174,96,.12); color:var(--green); border:1px solid rgba(39,174,96,.2); }
+  .tag-gold   { background:rgba(245,166,35,.12); color:var(--gold); border:1px solid rgba(245,166,35,.2); }
+  .u-card p   { font-size:.84rem; color:var(--gray); margin-top:.35rem; }
+  .u-card strong { color:var(--text); }
+
+  /* FLOW */
+  .flow-box { background:rgba(0,0,0,.2); border:1px solid var(--border); border-radius:10px; padding:1.25rem; margin-top:1rem; }
+  .flow-row { display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; margin-bottom:.6rem; }
+  .flow-row:last-child { margin-bottom:0; }
+  .fnode { border-radius:7px; padding:.35rem .85rem; font-size:.8rem; }
+  .fn-old { background:rgba(233,69,96,.1); border:1px solid rgba(233,69,96,.2); color:#F08090; text-decoration:line-through; opacity:.7; }
+  .fn-new { background:rgba(39,174,96,.1); border:1px solid rgba(39,174,96,.25); color:var(--green); font-weight:600; }
+  .fn-gray { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:var(--text); }
+  .arrow { color:var(--gray); font-size:1rem; }
+  .flow-label { font-size:.72rem; color:var(--gray); min-width:80px; font-style:italic; }
+
+  /* MOCKUP */
+  .mockup { background:#0D1321; border:1px solid var(--border2); border-radius:10px; overflow:hidden; font-size:.78rem; }
+  .mockup-bar { background:#16213E; padding:.4rem .75rem; display:flex; align-items:center; gap:.4rem; border-bottom:1px solid var(--border); }
+  .mdot { width:8px; height:8px; border-radius:50%; }
+  .murl { background:rgba(255,255,255,.06); border-radius:4px; padding:.15rem .6rem; font-size:.68rem; color:var(--gray); margin-left:.25rem; }
+  .mb { padding:.75rem; }
+
+  /* wireframe elements */
+  .wf-nav { background:#1A2744; border:1px solid #2A3A5A; border-radius:5px; padding:.35rem .75rem; margin-bottom:.6rem; display:flex; gap:1rem; align-items:center; }
+  .wf-logo { color:var(--accent); font-weight:700; font-size:.75rem; }
+  .wf-link { color:var(--gray); font-size:.65rem; }
+  .wf-link.active { color:var(--white); }
+
+  .wf-modal { background:#16213E; border:1px solid #2A3A5A; border-radius:8px; padding:.85rem; margin:.5rem 0; }
+  .wf-modal-title { color:var(--white); font-weight:700; font-size:.82rem; margin-bottom:.6rem; border-bottom:1px solid #2A3A5A; padding-bottom:.4rem; }
+  .wf-field { background:#0D1321; border:1px solid #2A3A5A; border-radius:4px; padding:.3rem .5rem; margin-bottom:.4rem; }
+  .wf-label { color:var(--gray); font-size:.58rem; }
+  .wf-val { color:var(--text); font-size:.7rem; margin-top:.05rem; }
+  .wf-val.auto { color:var(--gold); }
+  .wf-val.green { color:var(--green); }
+  .wf-row { display:grid; grid-template-columns:1fr 1fr; gap:.35rem; margin-bottom:.35rem; }
+  .wf-row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.35rem; margin-bottom:.35rem; }
+  .wf-section { background:#243050; border-radius:5px; padding:.4rem .6rem; margin-bottom:.35rem; }
+  .wf-section-label { color:var(--gold); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:.3rem; }
+  .wf-cat-row { display:flex; align-items:center; gap:.4rem; padding:.2rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .wf-cat-name { color:var(--text); font-size:.65rem; flex:1; }
+  .wf-cat-budget { color:var(--gray); font-size:.62rem; min-width:55px; text-align:right; }
+  .wf-cat-input { background:#0D1321; border:1px solid #2A3A5A; border-radius:3px; padding:.15rem .3rem; width:65px; color:var(--text); font-size:.62rem; }
+  .wf-total-row { display:flex; justify-content:space-between; padding:.35rem .4rem; background:#0D1321; border-radius:4px; margin-top:.35rem; }
+  .wf-total-label { color:var(--gray); font-size:.65rem; }
+  .wf-total-val { color:var(--white); font-weight:700; font-size:.72rem; }
+  .wf-btn { display:inline-block; background:var(--accent); color:white; font-size:.65rem; padding:.3rem .7rem; border-radius:4px; font-weight:700; }
+  .wf-btn.ghost { background:transparent; border:1px solid #2A3A5A; color:var(--gray); }
+  .wf-btn.gold { background:rgba(245,166,35,.15); border:1px solid rgba(245,166,35,.3); color:var(--gold); }
+  .wf-badge { display:inline-block; font-size:.58rem; padding:.1rem .35rem; border-radius:3px; }
+  .wf-badge.green { background:rgba(39,174,96,.2); color:var(--green); }
+  .wf-badge.gold  { background:rgba(245,166,35,.2); color:var(--gold); }
+  .wf-prog { background:rgba(255,255,255,.06); border-radius:3px; height:5px; margin-top:.15rem; }
+  .wf-prog-bar { height:100%; border-radius:3px; }
+
+  .wf-note { background:rgba(245,166,35,.06); border:1px solid rgba(245,166,35,.15); border-radius:5px; padding:.4rem .6rem; margin-bottom:.4rem; font-size:.65rem; color:var(--gold); }
+
+  .wf-table { background:#1E2A45; border:1px solid #2A3A5A; border-radius:5px; overflow:hidden; }
+  .wf-thead { background:#243050; display:flex; }
+  .wf-th { flex:1; padding:.28rem .4rem; color:var(--gray); font-size:.58rem; border-right:1px solid #2A3A5A; }
+  .wf-tr { display:flex; border-top:1px solid #2A3A5A; }
+  .wf-td { flex:1; padding:.25rem .4rem; color:var(--text); font-size:.62rem; border-right:1px solid #2A3A5A; }
+  .wf-td.dim { color:var(--gray); }
+  .wf-td.gold { color:var(--gold); }
+  .wf-td.green { color:var(--green); }
+  .wf-td.red { color:var(--accent); }
+  .wf-inline-add { display:flex; gap:.35rem; align-items:center; padding:.35rem .5rem; background:rgba(255,255,255,.02); border-top:1px dashed rgba(255,255,255,.08); }
+  .wf-inline-input { background:#0D1321; border:1px solid #2A3A5A; border-radius:3px; padding:.2rem .4rem; color:var(--text); font-size:.62rem; flex:1; }
+
+  /* CHANGE LIST */
+  .changes { display:flex; flex-direction:column; gap:.65rem; margin-top:1rem; }
+  .change-item { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem 1.25rem; display:flex; gap:1rem; }
+  .change-num { width:26px; height:26px; border-radius:50%; flex-shrink:0; background:rgba(39,174,96,.15); border:1px solid rgba(39,174,96,.3); color:var(--green); font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:.1rem; }
+  .change-item strong { color:var(--white); display:block; font-size:.88rem; margin-bottom:.25rem; }
+  .change-item span { color:var(--gray); font-size:.82rem; }
+  .change-item ul { margin-top:.4rem; padding-left:1.1rem; }
+  .change-item li { color:var(--gray); font-size:.8rem; margin-bottom:.2rem; }
+  .change-item li strong { color:var(--text); display:inline; font-size:.8rem; }
+
+  /* QUESTION BOX */
+  .q-box { background:rgba(245,166,35,.06); border:1px solid rgba(245,166,35,.2); border-radius:10px; padding:1.1rem 1.25rem; margin-top:1rem; }
+  .q-box h3 { color:var(--gold); font-size:.85rem; margin-bottom:.6rem; }
+  .q-list2 { display:flex; flex-direction:column; gap:.5rem; }
+  .q2 { display:flex; gap:.65rem; font-size:.83rem; }
+  .q2-num { color:var(--gold); font-weight:700; flex-shrink:0; }
+  .q2 span { color:var(--gray); }
+  .q2 strong { color:var(--text); }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  @media(max-width:700px) { .two-col { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="badge">Feature Plan</div>
+<h1>Monthly Log + Budget — สิ่งที่ต้องปรับ</h1>
+<p class="subtitle">สรุปความเข้าใจก่อน code — confirm แล้วค่อยลงมือ</p>
+
+<!-- WHAT I UNDERSTAND -->
+<h2>ที่เข้าใจจากที่บอก</h2>
+<div class="understand-grid">
+  <div class="u-card confirmed">
+    <span class="u-tag tag-green">เข้าใจแล้ว</span>
+    <h3>1. Income ดึงจาก Profile อัตโนมัติ</h3>
+    <p>ตอนเปิด modal กรอก Monthly Log — ช่อง <strong>รายได้</strong> ควร pre-fill ด้วย <code>annual_income ÷ 12</code> จาก Profile ให้เลย ไม่ต้องพิมพ์ซ้ำทุกเดือน แก้ได้ถ้าอยากใส่ต่างออกไป</p>
+  </div>
+  <div class="u-card confirmed">
+    <span class="u-tag tag-green">เข้าใจแล้ว</span>
+    <h3>2. Monthly modal ดึง Budget มาคำนวณรายจ่าย</h3>
+    <p>เมื่อกดเปิดเดือน — modal จะแสดง <strong>ทุก sub-category จาก Budget</strong> ให้กรอก actual รายหมวด แล้ว <strong>รวม auto เป็นรายจ่ายรวม</strong> ไม่ต้องคิดเองและตรง category เลย</p>
+  </div>
+  <div class="u-card confirmed">
+    <span class="u-tag tag-green">เข้าใจแล้ว</span>
+    <h3>3. Budget — เพิ่ม Sub-category ได้ไม่อั้น</h3>
+    <p>ปัจจุบัน add ได้แต่ต้องเปิด modal แยก — ปรับให้ <strong>inline ในตารางทุกหมวด</strong> กดปุ่ม + แล้วพิมพ์ชื่อ sub-category ใหม่ได้เลยไม่ต้องเปิด popup</p>
+  </div>
+  <div class="u-card confirmed">
+    <span class="u-tag tag-green">เข้าใจแล้ว</span>
+    <h3>4. Flow: Budget ก่อน → Monthly Log ทีหลัง</h3>
+    <p>ต้องตั้ง <strong>Budget ให้เสร็จก่อน</strong> แล้วค่อยมากรอก Monthly Log — เพราะ Monthly จะดึง category จาก Budget มาแสดง ถ้า Budget ยังว่างอยู่ Monthly จะไม่มี category ให้กรอก</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- FLOW CHANGE -->
+<h2>Flow ที่จะเปลี่ยน</h2>
+<div class="flow-box">
+  <div class="flow-row">
+    <span class="flow-label">เดิม</span>
+    <span class="fnode fn-gray">Monthly modal</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-old">พิมพ์ income เอง</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-old">พิมพ์ expenses รวม</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-gray">บันทึก</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label">ใหม่</span>
+    <span class="fnode fn-gray">Budget ตั้งค่าก่อน</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-gray">Monthly modal</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-new">income = profile ÷ 12 (auto)</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-new">กรอก actual ทีละหมวด</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-new">expenses รวมอัตโนมัติ</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-gray">บันทึก</span>
+  </div>
+</div>
+
+<hr>
+
+<!-- WIREFRAMES -->
+<h2>Wireframe — หน้าที่จะเปลี่ยน</h2>
+<div class="two-col">
+
+  <!-- BUDGET PAGE -->
+  <div>
+    <h3 style="margin-bottom:.75rem; color:var(--gold);">Budget — Inline Add Sub-category</h3>
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="mdot" style="background:#ff5f57"></div>
+        <div class="mdot" style="background:#febc2e"></div>
+        <div class="mdot" style="background:#28c840"></div>
+        <div class="murl">localhost:5000/budget</div>
+      </div>
+      <div class="mb">
+        <div class="wf-nav"><span class="wf-logo">MND</span><div style="display:flex;gap:.6rem;"><span class="wf-link">Dashboard</span><span class="wf-link active">Budget</span><span class="wf-link">Monthly</span></div></div>
+
+        <div style="color:var(--gold);font-size:.65rem;font-weight:700;text-transform:uppercase;margin:.3rem 0 .25rem;">อาหาร</div>
+        <div class="wf-table">
+          <div class="wf-thead">
+            <div class="wf-th" style="flex:2">Sub-category</div>
+            <div class="wf-th">฿/เดือน</div>
+            <div class="wf-th">฿/ปี</div>
+            <div class="wf-th">Actual</div>
+            <div class="wf-th">%</div>
+            <div class="wf-th" style="flex:0.4"></div>
+          </div>
+          <div class="wf-tr">
+            <div class="wf-td" style="flex:2">อาหารที่บ้าน</div>
+            <div class="wf-td gold">5,000</div>
+            <div class="wf-td dim">60,000</div>
+            <div class="wf-td">38,000</div>
+            <div class="wf-td green">63%</div>
+            <div class="wf-td" style="flex:0.4;color:var(--accent);cursor:pointer;">✕</div>
+          </div>
+          <div class="wf-tr">
+            <div class="wf-td" style="flex:2">อาหารนอกบ้าน</div>
+            <div class="wf-td gold">3,000</div>
+            <div class="wf-td dim">36,000</div>
+            <div class="wf-td">34,500</div>
+            <div class="wf-td" style="color:var(--accent);">96%</div>
+            <div class="wf-td" style="flex:0.4;color:var(--accent);cursor:pointer;">✕</div>
+          </div>
+          <!-- INLINE ADD ROW -->
+          <div class="wf-inline-add">
+            <span style="color:var(--green);font-size:.65rem;">+</span>
+            <div class="wf-inline-input" style="flex:2;" placeholder="ชื่อ sub-category ใหม่...">เครื่องดื่ม Delivery</div>
+            <div class="wf-inline-input" placeholder="฿/เดือน">800</div>
+            <span class="wf-btn" style="font-size:.6rem;padding:.2rem .5rem;">เพิ่ม</span>
+          </div>
+        </div>
+
+        <div style="margin-top:.5rem;display:flex;gap:.3rem;align-items:center;">
+          <span style="color:var(--gray);font-size:.62rem;">กด + เพื่อเพิ่ม sub-category ได้ทุกหมวดโดยไม่จำกัด</span>
+        </div>
+
+        <div style="margin-top:.6rem;">
+          <span class="wf-btn">💾 บันทึกทั้งหมด</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTHLY MODAL -->
+  <div>
+    <h3 style="margin-bottom:.75rem; color:var(--gold);">Monthly Modal — Budget-linked</h3>
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="mdot" style="background:#ff5f57"></div>
+        <div class="mdot" style="background:#febc2e"></div>
+        <div class="mdot" style="background:#28c840"></div>
+        <div class="murl">localhost:5000/monthly → modal กรกฎาคม</div>
+      </div>
+      <div class="mb">
+        <div class="wf-modal">
+          <div class="wf-modal-title">กรกฎาคม 2026</div>
+
+          <!-- Income auto-fill -->
+          <div class="wf-note">💡 รายได้ดึงจาก Profile (฿300,000 ÷ 12) — แก้ไขได้ถ้าต่างออกไป</div>
+          <div class="wf-row">
+            <div class="wf-field">
+              <div class="wf-label">รายได้ (฿)</div>
+              <div class="wf-val auto">25,000 ← จาก Profile</div>
+            </div>
+            <div class="wf-field">
+              <div class="wf-label">Net Worth สิ้นเดือน (฿)</div>
+              <div class="wf-val" style="color:rgba(255,255,255,.3);">กรอกด้วยตนเอง</div>
+            </div>
+          </div>
+
+          <!-- Budget breakdown by category -->
+          <div style="font-size:.65rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin:.45rem 0 .3rem;">รายจ่ายแยกหมวด (ดึงจาก Budget)</div>
+
+          <div class="wf-section">
+            <div class="wf-section-label">อาหาร</div>
+            <div class="wf-cat-row">
+              <div class="wf-cat-name">อาหารที่บ้าน</div>
+              <div class="wf-cat-budget">Budget ฿5,000</div>
+              <input class="wf-cat-input" placeholder="0" value="4,200">
+            </div>
+            <div class="wf-cat-row">
+              <div class="wf-cat-name">อาหารนอกบ้าน</div>
+              <div class="wf-cat-budget">Budget ฿3,000</div>
+              <input class="wf-cat-input" placeholder="0" value="3,800">
+            </div>
+            <div class="wf-cat-row" style="border-bottom:none;">
+              <div class="wf-cat-name">เครื่องดื่ม / กาแฟ</div>
+              <div class="wf-cat-budget">Budget ฿1,000</div>
+              <input class="wf-cat-input" placeholder="0" value="">
+            </div>
+          </div>
+
+          <div class="wf-section">
+            <div class="wf-section-label">ที่อยู่อาศัย</div>
+            <div class="wf-cat-row" style="border-bottom:none;">
+              <div class="wf-cat-name">ค่าเช่า / ค่าผ่อนบ้าน</div>
+              <div class="wf-cat-budget">Budget ฿8,000</div>
+              <input class="wf-cat-input" placeholder="0" value="8,000">
+            </div>
+          </div>
+
+          <div style="color:var(--gray);font-size:.6rem;margin:.3rem 0;">... หมวดอื่น ๆ (scroll ดูได้) ...</div>
+
+          <!-- Auto-sum -->
+          <div class="wf-total-row">
+            <div class="wf-total-label">รายจ่ายรวม (คำนวณอัตโนมัติ)</div>
+            <div class="wf-total-val" style="color:var(--accent);">฿16,000</div>
+          </div>
+          <div class="wf-total-row" style="margin-top:.3rem;background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.15);border-radius:4px;">
+            <div class="wf-total-label">Savings Rate</div>
+            <div class="wf-total-val" style="color:var(--green);">36.0% ← auto</div>
+          </div>
+
+          <!-- Note -->
+          <div class="wf-field" style="margin-top:.4rem;">
+            <div class="wf-label">Note / Lesson</div>
+            <div class="wf-val" style="color:rgba(255,255,255,.3);">บทเรียนเดือนนี้...</div>
+          </div>
+
+          <div style="display:flex;gap:.35rem;margin-top:.5rem;justify-content:flex-end;">
+            <span class="wf-btn ghost">ยกเลิก</span>
+            <span class="wf-btn">บันทึก</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- CHANGE LIST -->
+<h2>สรุปสิ่งที่ต้อง code</h2>
+<div class="changes">
+  <div class="change-item">
+    <div class="change-num">1</div>
+    <div>
+      <strong>src/routes/monthly.py — Pre-fill income จาก Profile</strong>
+      <span>ส่ง <code>profile.annual_income / 12</code> ไปใน context ของ monthly template ให้ value ใน input income = ค่านี้ถ้ายังไม่เคยกรอก</span>
+    </div>
+  </div>
+  <div class="change-item">
+    <div class="change-num">2</div>
+    <div>
+      <strong>src/routes/monthly.py — ดึง Budget categories ส่งไป template</strong>
+      <span>query <code>budget_categories WHERE year=?</code> group by category ส่งไปด้วย เพื่อให้ modal แสดงทุก sub-category พร้อม budget amount</span>
+    </div>
+  </div>
+  <div class="change-item">
+    <div class="change-num">3</div>
+    <div>
+      <strong>src/templates/monthly.html — Modal ใหม่ (budget-linked)</strong>
+      <ul>
+        <li>income = <code>monthly_income</code> จาก profile (แก้ได้)</li>
+        <li>แสดง sub-category ทุกหมวดพร้อม input actual แต่ละรายการ</li>
+        <li>JS รวม actual ทุก input เป็น total expenses แบบ real-time</li>
+        <li>savings rate = auto จาก income - expenses</li>
+      </ul>
+    </div>
+  </div>
+  <div class="change-item">
+    <div class="change-num">4</div>
+    <div>
+      <strong>src/routes/monthly.py (POST) — รับ actual แต่ละ category</strong>
+      <span>รับ form fields <code>actual_[id]</code> ทุกตัว → sum เป็น expenses → upsert monthly_log → optional: upsert กลับไปที่ budget_categories.actual_ytd ด้วย</span>
+    </div>
+  </div>
+  <div class="change-item">
+    <div class="change-num">5</div>
+    <div>
+      <strong>src/templates/budget.html — Inline add sub-category</strong>
+      <span>แต่ละ category section มี row ว่าง + ปุ่ม + อยู่ท้ายตาราง กรอกชื่อ sub-category + budget/เดือน แล้วกด เพิ่ม → POST inline ไม่ต้องเปิด modal</span>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- CONFIRM QUESTION -->
+<div class="q-box">
+  <h3>ยืนยัน 2 จุดก่อน code</h3>
+  <div class="q-list2">
+    <div class="q2">
+      <span class="q2-num">1</span>
+      <span>เมื่อกรอก actual ในแต่ละ category แล้ว <strong>อยากให้อัปเดต Budget actual_ytd ไปด้วยเลยไหม?</strong> หรือให้ Monthly Log กับ Budget แยกกัน (กรอก actual ใน Budget แยก)</span>
+    </div>
+    <div class="q2">
+      <span class="q2-num">2</span>
+      <span>ถ้า Budget ของปีนั้นยังไม่มี category เลย — modal Monthly จะแสดงแค่ income + net worth field แบบเดิม หรืออยากให้ <strong>redirect ไปตั้ง Budget ก่อนไม่ให้กรอก Monthly ได้?</strong></span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
