@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storage Concept — MND Workshop</title>
+<style>
+  :root {
+    --navy:   #1A1A2E;
+    --mid:    #16213E;
+    --accent: #E94560;
+    --gold:   #F5A623;
+    --green:  #27AE60;
+    --blue:   #3498DB;
+    --purple: #9B59B6;
+    --white:  #FFFFFF;
+    --gray:   #8892A4;
+    --text:   #E8ECF4;
+    --card:   #1E2A45;
+    --border: rgba(255,255,255,.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* ── HEADER ── */
+  .header { text-align: center; padding: 3rem 0 2rem; }
+  .badge {
+    display: inline-block;
+    background: rgba(233,69,96,.15);
+    border: 1px solid rgba(233,69,96,.4);
+    color: var(--accent); font-size: .75rem;
+    font-weight: 700; letter-spacing: 1.5px;
+    padding: .3rem .9rem; border-radius: 999px;
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+  h1 { font-size: 2rem; font-weight: 800; color: var(--white); margin-bottom: .75rem; }
+  .subtitle { color: var(--gray); max-width: 520px; margin: 0 auto; font-size: .95rem; }
+
+  /* ── PRINCIPLE BOX ── */
+  .principle {
+    background: rgba(39,174,96,.08);
+    border: 1px solid rgba(39,174,96,.25);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 2rem 0;
+    display: flex; align-items: flex-start; gap: 1rem;
+  }
+  .principle-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: .1rem; }
+  .principle p { font-size: .9rem; color: var(--text); }
+  .principle strong { color: var(--green); }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 1.5rem; margin: 2rem 0; }
+
+  .option {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem;
+    transition: border-color .2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .option:hover { border-color: rgba(255,255,255,.15); }
+  .option.selected { border-color: var(--accent); }
+  .option.recommended { border-color: rgba(245,166,35,.3); }
+
+  .option-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .option-label {
+    font-size: .7rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: .25rem .7rem;
+    border-radius: 999px;
+  }
+  .label-a { background: rgba(52,152,219,.15); color: var(--blue); border: 1px solid rgba(52,152,219,.3); }
+  .label-b { background: rgba(245,166,35,.15); color: var(--gold); border: 1px solid rgba(245,166,35,.3); }
+  .label-c { background: rgba(155,89,182,.15); color: var(--purple); border: 1px solid rgba(155,89,182,.3); }
+
+  .rec-badge {
+    position: absolute; top: 1rem; right: 1rem;
+    background: rgba(245,166,35,.15);
+    border: 1px solid rgba(245,166,35,.3);
+    color: var(--gold); font-size: .7rem; font-weight: 700;
+    padding: .2rem .6rem; border-radius: 999px;
+  }
+
+  .option h2 { font-size: 1.15rem; color: var(--white); }
+  .option-tagline { font-size: .85rem; color: var(--gray); margin-bottom: 1.25rem; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    background: rgba(0,0,0,.2);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    font-size: .8rem;
+    display: flex; align-items: center;
+    flex-wrap: wrap; gap: .4rem;
+  }
+  .flow-node {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 6px;
+    padding: .3rem .7rem;
+    color: var(--text); font-size: .78rem;
+  }
+  .flow-node.highlight-b { background: rgba(245,166,35,.12); border-color: rgba(245,166,35,.3); color: var(--gold); }
+  .flow-node.highlight-a { background: rgba(52,152,219,.12); border-color: rgba(52,152,219,.3); color: var(--blue); }
+  .flow-node.highlight-c { background: rgba(155,89,182,.12); border-color: rgba(155,89,182,.3); color: var(--purple); }
+  .flow-node.stored { background: rgba(39,174,96,.12); border-color: rgba(39,174,96,.3); color: var(--green); }
+  .flow-arrow { color: var(--gray); font-size: .9rem; }
+
+  /* ── PROS/CONS ── */
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .pc-col h4 { font-size: .75rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: .6rem; }
+  .pros h4 { color: var(--green); }
+  .cons h4 { color: var(--accent); }
+  .pc-col ul { list-style: none; display: flex; flex-direction: column; gap: .35rem; }
+  .pc-col li { font-size: .83rem; color: var(--gray); display: flex; gap: .5rem; }
+  .pc-col li::before { flex-shrink: 0; }
+  .pros li::before { content: '✓'; color: var(--green); }
+  .cons li::before { content: '✗'; color: var(--accent); }
+
+  /* ── QUESTIONS ── */
+  .questions-section { margin-top: 2.5rem; }
+  .questions-section h3 { font-size: 1rem; color: var(--white); margin-bottom: 1rem; }
+  .q-list { display: flex; flex-direction: column; gap: .75rem; }
+  .q-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex; gap: 1rem; align-items: flex-start;
+  }
+  .q-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.3);
+    color: var(--accent); font-size: .75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: .15rem;
+  }
+  .q-text { font-size: .9rem; }
+  .q-text strong { color: var(--white); display: block; margin-bottom: .2rem; }
+  .q-text span { color: var(--gray); font-size: .83rem; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare { margin-top: 2.5rem; }
+  .compare h3 { font-size: 1rem; color: var(--white); margin-bottom: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th {
+    background: var(--mid); color: var(--white);
+    padding: .75rem 1rem; text-align: left; font-weight: 700;
+    border-bottom: 2px solid var(--accent);
+  }
+  td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); color: var(--gray); }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  td:first-child { color: var(--text); font-weight: 500; }
+  .yes { color: var(--green); font-weight: 600; }
+  .no  { color: var(--accent); font-weight: 600; }
+  .mid { color: var(--gold); font-weight: 600; }
+  th.col-b { color: var(--gold); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Concept Discussion</div>
+  <h1>ข้อมูลอยู่ที่เครื่องคุณเท่านั้น</h1>
+  <p class="subtitle">เลือก storage strategy สำหรับ MND Wealth Workshop — ก่อนลงมือเขียน code</p>
+</div>
+
+<div class="principle">
+  <div class="principle-icon">🔒</div>
+  <p>
+    <strong>หลักการที่ไม่เปลี่ยน:</strong> ข้อมูลการเงินส่วนตัวอยู่บนเครื่องผู้ใช้เท่านั้น
+    ไม่มีการส่งออก ไม่มี server รับ ไม่มี cloud sync — GitHub ได้รับแค่ไฟล์ project
+    ข้อมูลจริงอยู่ใน <code>data/</code> ที่ถูก <code>.gitignore</code> ไว้
+  </p>
+</div>
+
+<hr>
+
+<!-- OPTIONS -->
+<div class="options">
+
+  <!-- OPTION A -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-label label-a">Option A</span>
+      <h2>IndexedDB — ฝังใน Browser</h2>
+    </div>
+    <p class="option-tagline">ดับเบิ้ลคลิก HTML ได้เลย ข้อมูลอยู่ใน browser storage</p>
+    <div class="flow">
+      <span class="flow-node">เปิด HTML</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node highlight-a">Browser กรอกข้อมูล</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node stored">IndexedDB ใน Browser</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node">ข้อมูลอยู่ใน browser นั้น</span>
+    </div>
+    <div class="pc-grid">
+      <div class="pc-col pros">
+        <h4>ข้อดี</h4>
+        <ul>
+          <li>ดับเบิ้ลคลิกเปิดได้ทันที ไม่ต้องรัน server</li>
+          <li>ทำงานได้ทุก browser</li>
+          <li>เขียน code ง่ายที่สุด</li>
+        </ul>
+      </div>
+      <div class="pc-col cons">
+        <h4>ข้อเสีย</h4>
+        <ul>
+          <li>ข้อมูลผูกกับ browser — ล้าง cache = หายหมด</li>
+          <li>เปลี่ยน browser หรือเครื่องใหม่ ต้อง export ก่อน</li>
+          <li>ไม่มีไฟล์ .db จริงๆ ให้จัดการหรือ backup</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B -->
+  <div class="option recommended">
+    <div class="rec-badge">⭐ แนะนำ</div>
+    <div class="option-header">
+      <span class="option-label label-b">Option B</span>
+      <h2>SQLite WASM — ไฟล์ .db บนดิสก์จริง</h2>
+    </div>
+    <p class="option-tagline">SQL จริง, ไฟล์จริงบนเครื่อง, เปิด HTML ได้เลยไม่ต้องรัน server</p>
+    <div class="flow">
+      <span class="flow-node">เปิด HTML</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node highlight-b">SQLite ทำงานใน Browser (WASM)</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node stored">บันทึก → mnd-data.db บนดิสก์</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node">เปิดครั้งต่อไปโหลดไฟล์เดิม</span>
+    </div>
+    <div class="pc-grid">
+      <div class="pc-col pros">
+        <h4>ข้อดี</h4>
+        <ul>
+          <li>SQL จริงๆ — query, join, aggregate ได้เต็มรูปแบบ</li>
+          <li>ไฟล์ .db จับต้องได้ — copy, backup, ย้ายเครื่องได้</li>
+          <li>ดับเบิ้ลคลิกเปิดได้ ไม่ต้องรัน server</li>
+          <li>ข้อมูลไม่หายแม้ล้าง browser cache</li>
+          <li>ต่อยอดเปิดด้วย DB Browser for SQLite ได้</li>
+        </ul>
+      </div>
+      <div class="pc-col cons">
+        <h4>ข้อเสีย</h4>
+        <ul>
+          <li>รองรับเต็มที่บน Chrome / Edge — Firefox มีข้อจำกัด</li>
+          <li>ต้อง load WASM library (~1MB) ครั้งแรก</li>
+          <li>ผู้ใช้ต้อง "อนุญาต" ให้ browser เข้าถึงโฟลเดอร์ครั้งแรก</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-label label-c">Option C</span>
+      <h2>Python Flask + SQLite — Local Server</h2>
+    </div>
+    <p class="option-tagline">รัน python app.py ก่อน แล้วเปิด localhost:5000 ในบราวเซอร์</p>
+    <div class="flow">
+      <span class="flow-node highlight-c">python app.py</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node">localhost:5000</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node highlight-c">Flask รับ request</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-node stored">mnd-data.db บนดิสก์</span>
+    </div>
+    <div class="pc-grid">
+      <div class="pc-col pros">
+        <h4>ข้อดี</h4>
+        <ul>
+          <li>SQL เต็มรูปแบบ ไม่มีข้อจำกัด browser</li>
+          <li>ไฟล์ .db บนดิสก์ชัดเจน</li>
+          <li>รองรับ Python ที่มีอยู่แล้วในเครื่อง</li>
+          <li>ขยายต่อ (export Excel, report) ง่ายมาก</li>
+        </ul>
+      </div>
+      <div class="pc-col cons">
+        <h4>ข้อเสีย</h4>
+        <ul>
+          <li>ต้องรัน server ทุกครั้งก่อนใช้งาน</li>
+          <li>ต้องติดตั้ง Python + Flask</li>
+          <li>เปิดแบบ double-click ไม่ได้</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="compare">
+  <h3>เปรียบเทียบ</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>เกณฑ์</th>
+        <th>A — IndexedDB</th>
+        <th class="col-b">B — SQLite WASM ⭐</th>
+        <th>C — Flask + SQLite</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>เปิดด้วย double-click</td>
+        <td class="yes">✓ ได้เลย</td>
+        <td class="yes">✓ ได้เลย</td>
+        <td class="no">✗ ต้องรัน server ก่อน</td>
+      </tr>
+      <tr>
+        <td>ข้อมูลเป็นไฟล์จริงบนดิสก์</td>
+        <td class="no">✗ อยู่ใน browser</td>
+        <td class="yes">✓ .db file บนดิสก์</td>
+        <td class="yes">✓ .db file บนดิสก์</td>
+      </tr>
+      <tr>
+        <td>ข้อมูลปลอดภัยถ้าล้าง cache</td>
+        <td class="no">✗ หายหมด</td>
+        <td class="yes">✓ ไฟล์อยู่บนดิสก์</td>
+        <td class="yes">✓ ไฟล์อยู่บนดิสก์</td>
+      </tr>
+      <tr>
+        <td>SQL เต็มรูปแบบ</td>
+        <td class="no">✗ Object store</td>
+        <td class="yes">✓ Full SQL</td>
+        <td class="yes">✓ Full SQL</td>
+      </tr>
+      <tr>
+        <td>ย้ายเครื่อง / backup</td>
+        <td class="mid">△ Export ก่อน</td>
+        <td class="yes">✓ Copy .db ไฟล์</td>
+        <td class="yes">✓ Copy .db ไฟล์</td>
+      </tr>
+      <tr>
+        <td>ต้องติดตั้งอะไรเพิ่ม</td>
+        <td class="yes">✓ ไม่ต้อง</td>
+        <td class="yes">✓ ไม่ต้อง (Chrome/Edge)</td>
+        <td class="no">✗ Python + Flask</td>
+      </tr>
+      <tr>
+        <td>ความซับซ้อนในการ implement</td>
+        <td class="yes">ต่ำ</td>
+        <td class="mid">กลาง</td>
+        <td class="mid">กลาง</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<!-- QUESTIONS -->
+<div class="questions-section">
+  <h3>ก่อนตัดสินใจ — ช่วยตอบ 3 ข้อนี้</h3>
+  <div class="q-list">
+    <div class="q-item">
+      <div class="q-num">1</div>
+      <div class="q-text">
+        <strong>Browser หลักที่ใช้คืออะไร?</strong>
+        <span>Option B ทำงานได้เต็มที่บน Chrome / Edge — ถ้าใช้ Firefox เป็นหลักควรเลือก A หรือ C แทน</span>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">2</div>
+      <div class="q-text">
+        <strong>ใช้คนเดียวบนเครื่องนี้เครื่องเดียว หรืออยากย้ายข้อมูลระหว่างเครื่อง?</strong>
+        <span>ถ้าย้ายเครื่อง — Option B และ C ดีกว่าชัดเจน เพราะ copy ไฟล์ .db ได้เลย</span>
+      </div>
+    </div>
+    <div class="q-item">
+      <div class="q-num">3</div>
+      <div class="q-text">
+        <strong>โอเคกับการกด "อนุญาต" ให้ browser เข้าถึงโฟลเดอร์ data/ ครั้งแรกไหม?</strong>
+        <span>Option B ต้องให้ permission ครั้งแรก (เหมือนที่เว็บขอเข้า mic/camera) — ครั้งเดียวพอ ครั้งต่อไปจำเองอัตโนมัติ</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
