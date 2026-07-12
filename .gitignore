@@ -1,0 +1,12 @@
+# Private financial data — never commit real numbers
+instances/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
