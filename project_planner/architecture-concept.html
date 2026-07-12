@@ -160,11 +160,11 @@
 <div class="tree">
   <div class="t-root">MND/</div>
 
-  <div class="indent1"><span class="t-file">run.py</span> <span class="t-note">← entry point เดียว — python run.py</span></div>
   <div class="indent1"><span class="t-file">requirements.txt</span></div>
   <div class="indent1"><span class="t-file">.gitignore</span></div>
 
   <div class="indent1 t-dir">src/</div>
+  <div class="indent2"><span class="t-entry">main.py</span> <span class="t-note">← entry point — cd src &amp;&amp; python main.py</span></div>
   <div class="indent2"><span class="t-entry">app.py</span> <span class="t-note">← สร้าง Flask app, register blueprints</span></div>
   <div class="indent2"><span class="t-entry">db.py</span> <span class="t-note">← init DB, get_connection()</span></div>
 
@@ -183,18 +183,18 @@
   <div class="indent3"><span class="t-file">excel.py</span> <span class="t-note">← export to .xlsx ด้วย openpyxl</span></div>
   <div class="indent3"><span class="t-file">date_helpers.py</span> <span class="t-note">← current year/month, rollover logic</span></div>
 
-  <div class="indent1 t-dir" style="color:var(--gold)">templates/</div>
-  <div class="indent2"><span class="t-file">base.html</span></div>
-  <div class="indent2"><span class="t-file">dashboard.html</span></div>
-  <div class="indent2"><span class="t-file">budget.html</span></div>
-  <div class="indent2"><span class="t-file">monthly.html</span></div>
-  <div class="indent2"><span class="t-file">goals.html</span></div>
-  <div class="indent2"><span class="t-file">planning.html</span></div>
-  <div class="indent2"><span class="t-file">review.html</span></div>
+  <div class="indent2 t-dir" style="color:var(--gold)">templates/</div>
+  <div class="indent3"><span class="t-file">base.html</span></div>
+  <div class="indent3"><span class="t-file">dashboard.html</span></div>
+  <div class="indent3"><span class="t-file">budget.html</span></div>
+  <div class="indent3"><span class="t-file">monthly.html</span></div>
+  <div class="indent3"><span class="t-file">goals.html</span></div>
+  <div class="indent3"><span class="t-file">planning.html</span></div>
+  <div class="indent3"><span class="t-file">review.html</span></div>
 
-  <div class="indent1 t-dir" style="color:var(--blue)">static/</div>
-  <div class="indent2"><span class="t-file">style.css</span></div>
-  <div class="indent2"><span class="t-file">app.js</span></div>
+  <div class="indent2 t-dir" style="color:var(--blue)">static/</div>
+  <div class="indent3"><span class="t-file">style.css</span></div>
+  <div class="indent3"><span class="t-file">app.js</span></div>
 
   <div class="indent1 t-dir t-git">data/</div>
   <div class="indent2"><span class="t-priv">mnd-data.db</span> <span class="t-git">← .gitignore — ไม่ขึ้น GitHub</span></div>
@@ -212,14 +212,14 @@
 
   <div class="layer-card">
     <div class="layer-header lh-entry">
-      <span class="layer-path path-entry">run.py</span>
-      <h3>Entry Point — จุดเดียวที่ user รัน</h3>
+      <span class="layer-path path-entry">src/main.py</span>
+      <h3>Entry Point — cd src &amp;&amp; python main.py</h3>
     </div>
     <div class="layer-body">
       <div class="file-list">
         <div class="file-chip">
-          <span class="fname">run.py</span>
-          <span class="fdesc">import app จาก src → flask run. ไม่มี logic อื่น</span>
+          <span class="fname">main.py</span>
+          <span class="fdesc">import app → app.run(). ไม่มี logic อื่น</span>
         </div>
       </div>
     </div>
@@ -377,14 +377,14 @@
     <div class="q-num">2</div>
     <div>
       <strong>เริ่ม build จากไหนก่อน?</strong>
-      <span>แนะนำ: <code>run.py</code> + <code>src/app.py</code> + <code>src/db.py</code> + <code>src/utils/</code> ทั้งหมด → แล้วค่อย build ทีละ route โดยเริ่มจาก Dashboard + Monthly Log</span>
+      <span>แนะนำ: <code>src/main.py</code> + <code>src/app.py</code> + <code>src/db.py</code> + <code>src/utils/</code> ทั้งหมด → แล้วค่อย build ทีละ route โดยเริ่มจาก Dashboard + Monthly Log</span>
     </div>
   </div>
   <div class="q-item">
     <div class="q-num">3</div>
     <div>
       <strong>DB สร้างอัตโนมัติตอน run ครั้งแรก โอเคไหม?</strong>
-      <span><code>src/db.py</code> จะ check ว่ามี <code>data/mnd-data.db</code> ไหม ถ้าไม่มีก็สร้างพร้อม schema ให้เลย ไม่ต้องรัน migration แยก</span>
+      <span><code>src/db.py</code> จะ check ว่ามี <code>../data/mnd-data.db</code> ไหม (path relative จาก src/) ถ้าไม่มีก็สร้างพร้อม schema ให้เลย ไม่ต้องรัน migration แยก</span>
     </div>
   </div>
 </div>
