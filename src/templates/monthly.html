@@ -186,6 +186,9 @@
 
 {% block scripts %}
 <script>
+// Auto-open current month modal on page load
+document.addEventListener('DOMContentLoaded', () => openModal('modal-{{ current_month }}'));
+
 function recalc(monthNum) {
   const income   = parseFloat(document.getElementById('income-' + monthNum)?.value) || 0;
   const inputs   = document.querySelectorAll('.cat-actual-' + monthNum);
