@@ -1,42 +1,87 @@
 # MND Wealth Workshop
 
-A personal finance framework inspired by *The Millionaire Next Door*, designed to be repeated every year with an Excel-based tracking system.
+A personal finance framework inspired by *The Millionaire Next Door*, built as a local Flask + SQLite web app. All financial data stays on your machine — only the project code lives on GitHub.
+
+---
+
+## Quick Start
+
+```bash
+cd src
+python main.py
+# Open http://127.0.0.1:5000
+```
+
+First run → setup page (name / birth year / annual income) → data auto-saved to `data/mnd-data.db`
 
 ---
 
 ## What's Been Built
 
-### Repo Structure
+### Stack
+- **Backend:** Python Flask, SQLite (via `data/mnd-data.db` — gitignored)
+- **Frontend:** Jinja2 templates, vanilla CSS/JS — dark navy theme, Thai UI
+- **Scripts:** openpyxl for Excel export, rollover script for year-end
+
+### Project Structure
 
 ```
-mnd-wealth-framework/
+MND/
+├── src/
+│   ├── main.py               ← entry point: cd src && python main.py
+│   ├── app.py                ← Flask factory, register blueprints
+│   ├── db.py                 ← SQLite init, 7 tables, seed defaults
+│   ├── routes/
+│   │   ├── dashboard.py      ← GET /
+│   │   ├── monthly.py        ← GET/POST /monthly
+│   │   ├── budget.py         ← GET/POST /budget
+│   │   ├── goals.py          ← GET/POST /goals
+│   │   ├── planning.py       ← GET/POST /planning
+│   │   ├── review.py         ← GET/POST /review
+│   │   └── export.py         ← GET /export → .xlsx download
+│   ├── utils/
+│   │   ├── paw.py            ← PAW/UAW calc, savings rate
+│   │   ├── db_helpers.py     ← fetch_one, fetch_all, upsert
+│   │   ├── date_helpers.py   ← Thai month names, year/month helpers
+│   │   └── excel.py          ← openpyxl export workbook
+│   ├── templates/            ← Jinja2 HTML (base + 7 pages)
+│   └── static/               ← style.css, app.js
+├── data/                     ← .gitignore — DB lives here only
 ├── docs/
-│   ├── methodology.md        # PAW/UAW principles + 4 core diagnostic questions
-│   └── question-bank.md      # Question sets for monthly / quarterly / annual reviews
+│   ├── methodology.md        ← PAW/UAW principles from the book
+│   └── question-bank.md      ← 4 core questions + review sets
+├── scripts/
+│   ├── create_template.py    ← generate blank Excel template
+│   └── rollover.py           ← carry net worth to new year
 ├── templates/
-│   └── wealth-tracker-template.xlsx   # Blank 6-sheet Excel workbook
-├── instances/                # PRIVATE — excluded via .gitignore
-│   └── 2026/wealth-tracker-2026.xlsx
-└── scripts/
-    ├── create_template.py    # Re-generate the blank Excel template
-    └── rollover.py           # Carry forward net worth into next year's file
+│   └── wealth-tracker-template.xlsx
+└── project_planner/          ← concept & planning HTMLs
 ```
 
-### Excel Template — 6 Sheets
+### Database — 7 Tables
 
-| Sheet | Purpose | MND Question |
+| Table | Purpose |
+|---|---|
+| `profile` | Name, birth year, annual income |
+| `budget_categories` | Expense categories per year with monthly budget |
+| `monthly_expense_detail` | Actual spend per category per month |
+| `monthly_log` | Income, total expenses, savings rate, net worth per month |
+| `goals` | Goals across 5 horizons (daily → lifetime) |
+| `planning_log` | Planning hours, topics, insights per month |
+| `annual_review` | Answers to year-end review questions |
+
+### Pages
+
+| Route | Page | Features |
 |---|---|---|
-| **Dashboard** | PAW/UAW calculator, savings rate, annual KPIs | Overview |
-| **Annual_Budget** | Thai-language expense categories, budget vs. actual | Q2 |
-| **Monthly_Log** | 15-min monthly check-in (income, expenses, savings rate, net worth) | Q1–2 |
-| **Goals_Matrix** | 5-horizon goal tree: daily → weekly → monthly → annual → lifetime | Q3 |
-| **Planning_Time_Log** | Hours spent per month on financial planning (target ≥ 8 hrs) | Q4 |
-| **Review_Log** | Annual reflection questions (wealth, budget, goals, planning, commitments) | All |
-
-### Scripts
-
-- **`create_template.py`** — run once to generate a fresh blank `.xlsx` from scratch
-- **`rollover.py`** — reads December net worth from the current year's file and writes it as the opening baseline in next year's file; clears all data cells while preserving formulas
+| `/` | Dashboard | PAW/UAW status, multiplier, savings rate, net worth chart, KPIs |
+| `/monthly` | Monthly Log | Auto-opens current month, income pre-filled from profile, per-category actual entry, auto-sum expenses + savings rate |
+| `/budget` | Annual Budget | Budget vs actual per category, inline add sub-category per group, progress bars, auto-updates from monthly entries |
+| `/goals` | Goals Matrix | 5 horizons (daily/weekly/monthly/annual/lifetime), toggle done/active, add/delete |
+| `/planning` | Planning Time | Hours per month vs 8hr target, color-coded, topics + insights |
+| `/review` | Annual Review | Guided Q&A across 5 sections, progress tracking |
+| `/export` | Export Excel | Download full year data as .xlsx |
+| `/setup` | First-run Setup | Profile creation, redirected automatically on first visit |
 
 ---
 
@@ -44,35 +89,21 @@ mnd-wealth-framework/
 
 | Frequency | Action |
 |---|---|
-| Year 1 (Setup) | Set lifetime → annual goals → configure budget categories |
-| Monthly | Fill Monthly Log + Planning Time Log (~15 min) |
+| Year 1 (Setup) | `python main.py` → setup profile → set Budget categories → set Goals |
+| Monthly | Open `/monthly` → current month auto-opens → fill actuals per category |
 | Quarterly | Review Goals Matrix |
-| Annually | Run `rollover.py` to generate next year's file |
+| Year-end | Fill Annual Review → run `python scripts/rollover.py --source ... --year YYYY` |
 
 ---
 
-## Quick Start
+## Privacy
+
+`data/` is in `.gitignore` — your financial data never leaves your machine. GitHub receives only code and blank templates.
+
+---
+
+## Requirements
 
 ```bash
-# 1. Copy blank template into your private instances folder
-cp templates/wealth-tracker-template.xlsx instances/2026/wealth-tracker-2026.xlsx
-
-# 2. Fill in your Profile on the Dashboard sheet
-
-# 3. End of year — generate next year's file
-python scripts/rollover.py --source instances/2026/wealth-tracker-2026.xlsx --year 2027
+pip install flask openpyxl
 ```
-
----
-
-## Privacy Note
-
-The `instances/` folder contains real financial data and is excluded from version control via `.gitignore`. Only the framework, blank templates, and scripts live in this repo.
-
----
-
-## Roadmap
-
-- [ ] HTML workshop interface for reviewing and filling in annual goals
-- [ ] Expand `question-bank.md` with questions from chapters 3–9
-- [ ] Add PAW/UAW trend chart to Dashboard sheet
