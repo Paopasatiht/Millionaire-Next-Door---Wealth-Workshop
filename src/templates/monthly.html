@@ -43,7 +43,7 @@
   </div>
 </div>
 
-<!-- MONTH GRID -->
+<!-- MONTH CARDS (grid only — no modals here) -->
 <div class="grid-3">
   {% for m in months %}
   {% set d = m.data %}
@@ -70,135 +70,134 @@
       <div style="color:var(--gray); font-size:.8rem;">ยังไม่ได้กรอก</div>
     {% endif %}
   </div>
-
-  <!-- ── MODAL ── -->
-  <div class="modal-overlay" id="modal-{{ m.num }}">
-    <div class="modal" style="max-width:580px; max-height:90vh; overflow-y:auto;">
-      <div class="modal-title">{{ m.name }} {{ year }}</div>
-      <form method="POST" action="{{ url_for('monthly.save') }}" id="form-{{ m.num }}">
-        <input type="hidden" name="year"  value="{{ year }}">
-        <input type="hidden" name="month" value="{{ m.num }}">
-
-        <!-- INCOME + NET WORTH -->
-        <div class="grid-2" style="margin-bottom:.85rem;">
-          <div class="form-group">
-            <label class="form-label">
-              รายได้ (฿)
-              {% if monthly_income %}<span style="color:var(--gray);font-weight:400;"> — จาก Profile</span>{% endif %}
-            </label>
-            <input class="form-control" type="number" name="income" id="income-{{ m.num }}"
-                   value="{{ d.income if d else monthly_income }}"
-                   step="0.01" min="0"
-                   oninput="recalc({{ m.num }})" placeholder="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Net Worth สิ้นเดือน (฿)</label>
-            <input class="form-control" type="number" name="net_worth"
-                   value="{{ d.net_worth if d else '' }}"
-                   step="0.01" min="0" placeholder="0">
-          </div>
-        </div>
-
-        <!-- EXPENSE BY CATEGORY -->
-        {% if has_budget %}
-        <div style="margin-bottom:.6rem;">
-          <div class="section-title" style="margin-bottom:.6rem;">รายจ่ายแยกหมวด</div>
-
-          {% for category, rows in budget_grouped.items() %}
-          <div style="margin-bottom:.75rem;">
-            <div style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase;
-                        letter-spacing:.5px; padding:.35rem 0 .3rem; border-bottom:1px solid var(--border);">
-              {{ category }}
-            </div>
-            {% for r in rows %}
-            {% set existing = m.expense_detail.get(r.id, '') %}
-            <input type="hidden" name="cat_id" value="{{ r.id }}">
-            <div style="display:flex; align-items:center; gap:.75rem; padding:.4rem 0;
-                        border-bottom:1px solid var(--border);">
-              <div style="flex:1; font-size:.83rem; color:var(--text);">{{ r.sub_category }}</div>
-              <div style="font-size:.72rem; color:var(--gray); white-space:nowrap;">
-                Budget ฿{{ r.monthly_budget | fmt_num }}
-              </div>
-              <input class="form-control font-mono cat-actual-{{ m.num }}"
-                     type="number" name="actual_{{ r.id }}"
-                     value="{{ existing if existing else '' }}"
-                     step="0.01" min="0" placeholder="0"
-                     oninput="recalc({{ m.num }})"
-                     style="width:110px; text-align:right;">
-            </div>
-            {% endfor %}
-          </div>
-          {% endfor %}
-
-        {% else %}
-        <!-- NO BUDGET — simple mode -->
-        <div style="background:rgba(245,166,35,.07); border:1px solid rgba(245,166,35,.2);
-                    border-radius:8px; padding:.75rem 1rem; margin-bottom:.85rem;
-                    font-size:.82rem; color:var(--gold);">
-          💡 ยังไม่ได้ตั้ง Budget ปีนี้ — <a href="{{ url_for('budget.index', year=year) }}"
-          style="color:var(--gold); font-weight:700;">ไปตั้ง Budget →</a>
-          (กรอกรายจ่ายรวมได้ก่อนถ้าอยากบันทึกไว้)
-        </div>
-        <div class="form-group" style="margin-bottom:.85rem;">
-          <label class="form-label">รายจ่ายรวม (฿)</label>
-          <input class="form-control font-mono" type="number" id="expenses-simple-{{ m.num }}"
-                 name="expenses_simple"
-                 value="{{ d.expenses if d else '' }}"
-                 step="0.01" min="0" placeholder="0"
-                 oninput="recalcSimple({{ m.num }})">
-        </div>
-        {% endif %}
-
-        <!-- TOTALS -->
-        <div style="background:var(--card2); border-radius:8px; padding:.75rem 1rem; margin-bottom:.85rem;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:.4rem;">
-            <span style="font-size:.82rem; color:var(--gray);">รายจ่ายรวม</span>
-            <span class="font-mono font-bold text-accent" id="total-exp-{{ m.num }}">
-              ฿{% if has_budget %}{{ d.expenses | fmt_num if d else '0' }}{% else %}0{% endif %}
-            </span>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <span style="font-size:.82rem; color:var(--gray);">Savings Rate</span>
-            <span class="font-mono font-bold" id="savings-rate-{{ m.num }}"
-                  style="color:{% if d and d.savings_rate >= 20 %}var(--green){% elif d and d.savings_rate >= 10 %}var(--gold){% else %}var(--accent){% endif %}">
-              {{ d.savings_rate | fmt_pct if d else '—' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- NOTE -->
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Note / Lesson ของเดือน</label>
-          <textarea class="form-control" name="note" rows="2"
-                    placeholder="บทเรียนหรือสิ่งที่อยากจำไว้...">{{ d.note if d else '' }}</textarea>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-{{ m.num }}')">ยกเลิก</button>
-          <button type="submit" class="btn btn-primary">บันทึก</button>
-        </div>
-      </form>
-    </div>
-  </div>
   {% endfor %}
 </div>
+
+<!-- MODALS (outside grid) -->
+{% for m in months %}
+{% set d = m.data %}
+<div class="modal-overlay" id="modal-{{ m.num }}">
+  <div class="modal" style="max-width:580px; max-height:90vh; overflow-y:auto;">
+    <div class="modal-title">{{ m.name }} {{ year }}</div>
+    <form method="POST" action="{{ url_for('monthly.save') }}">
+      <input type="hidden" name="year"  value="{{ year }}">
+      <input type="hidden" name="month" value="{{ m.num }}">
+
+      <!-- INCOME + NET WORTH -->
+      <div class="grid-2" style="margin-bottom:.85rem;">
+        <div class="form-group">
+          <label class="form-label">
+            รายได้ (฿)
+            {% if monthly_income %}<span style="color:var(--gray);font-weight:400;"> — จาก Profile</span>{% endif %}
+          </label>
+          <input class="form-control" type="number" name="income" id="income-{{ m.num }}"
+                 value="{{ d.income if d else monthly_income }}"
+                 step="0.01" min="0"
+                 oninput="recalc({{ m.num }})" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Net Worth สิ้นเดือน (฿)</label>
+          <input class="form-control" type="number" name="net_worth"
+                 value="{{ d.net_worth if d else '' }}"
+                 step="0.01" min="0" placeholder="0">
+        </div>
+      </div>
+
+      <!-- EXPENSE BY CATEGORY -->
+      {% if has_budget %}
+      <div style="margin-bottom:.6rem;">
+        <div class="section-title" style="margin-bottom:.6rem;">รายจ่ายแยกหมวด</div>
+        {% for category, rows in budget_grouped.items() %}
+        <div style="margin-bottom:.75rem;">
+          <div style="font-size:.72rem; font-weight:700; color:var(--gold); text-transform:uppercase;
+                      letter-spacing:.5px; padding:.35rem 0 .3rem; border-bottom:1px solid var(--border);">
+            {{ category }}
+          </div>
+          {% for r in rows %}
+          {% set existing = m.expense_detail.get(r.id, '') %}
+          <input type="hidden" name="cat_id" value="{{ r.id }}">
+          <div style="display:flex; align-items:center; gap:.75rem; padding:.4rem 0; border-bottom:1px solid var(--border);">
+            <div style="flex:1; font-size:.83rem; color:var(--text);">{{ r.sub_category }}</div>
+            <div style="font-size:.72rem; color:var(--gray); white-space:nowrap;">
+              Budget ฿{{ r.monthly_budget | fmt_num }}
+            </div>
+            <input class="form-control font-mono cat-actual-{{ m.num }}"
+                   type="number" name="actual_{{ r.id }}"
+                   value="{{ existing if existing else '' }}"
+                   step="0.01" min="0" placeholder="0"
+                   oninput="recalc({{ m.num }})"
+                   style="width:110px; text-align:right;">
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+
+      {% else %}
+      <!-- NO BUDGET — simple mode -->
+      <div style="background:rgba(245,166,35,.07); border:1px solid rgba(245,166,35,.2);
+                  border-radius:8px; padding:.75rem 1rem; margin-bottom:.85rem;
+                  font-size:.82rem; color:var(--gold);">
+        💡 ยังไม่ได้ตั้ง Budget ปีนี้ —
+        <a href="{{ url_for('budget.index', year=year) }}" style="color:var(--gold); font-weight:700;">ไปตั้ง Budget →</a>
+      </div>
+      <div class="form-group" style="margin-bottom:.85rem;">
+        <label class="form-label">รายจ่ายรวม (฿)</label>
+        <input class="form-control font-mono" type="number" id="expenses-simple-{{ m.num }}"
+               name="expenses_simple"
+               value="{{ d.expenses if d else '' }}"
+               step="0.01" min="0" placeholder="0"
+               oninput="recalcSimple({{ m.num }})">
+      </div>
+      {% endif %}
+
+      <!-- TOTALS -->
+      <div style="background:var(--card2); border-radius:8px; padding:.75rem 1rem; margin-bottom:.85rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:.4rem;">
+          <span style="font-size:.82rem; color:var(--gray);">รายจ่ายรวม</span>
+          <span class="font-mono font-bold text-accent" id="total-exp-{{ m.num }}">
+            ฿{{ d.expenses | fmt_num if d else '0' }}
+          </span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="font-size:.82rem; color:var(--gray);">Savings Rate</span>
+          <span class="font-mono font-bold" id="savings-rate-{{ m.num }}"
+                style="color:{% if d and d.savings_rate >= 20 %}var(--green){% elif d and d.savings_rate >= 10 %}var(--gold){% else %}var(--accent){% endif %}">
+            {{ d.savings_rate | fmt_pct if d else '—' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- NOTE -->
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Note / Lesson ของเดือน</label>
+        <textarea class="form-control" name="note" rows="2"
+                  placeholder="บทเรียนหรือสิ่งที่อยากจำไว้...">{{ d.note if d else '' }}</textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-{{ m.num }}')">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Auto-open current month modal on page load
 document.addEventListener('DOMContentLoaded', () => openModal('modal-{{ current_month }}'));
 
 function recalc(monthNum) {
-  const income   = parseFloat(document.getElementById('income-' + monthNum)?.value) || 0;
-  const inputs   = document.querySelectorAll('.cat-actual-' + monthNum);
-  let   total    = 0;
+  const income = parseFloat(document.getElementById('income-' + monthNum)?.value) || 0;
+  const inputs = document.querySelectorAll('.cat-actual-' + monthNum);
+  let total = 0;
   inputs.forEach(inp => { total += parseFloat(inp.value) || 0; });
-
   const expEl  = document.getElementById('total-exp-' + monthNum);
   const rateEl = document.getElementById('savings-rate-' + monthNum);
-
-  if (expEl)  expEl.textContent  = '฿' + total.toLocaleString('th-TH', {minimumFractionDigits:0, maximumFractionDigits:0});
+  if (expEl)  expEl.textContent = '฿' + total.toLocaleString('th-TH', {maximumFractionDigits:0});
   if (rateEl && income) {
     const rate = ((income - total) / income * 100).toFixed(1);
     rateEl.textContent = rate + '%';
@@ -209,9 +208,9 @@ function recalc(monthNum) {
 function recalcSimple(monthNum) {
   const income   = parseFloat(document.getElementById('income-' + monthNum)?.value) || 0;
   const expenses = parseFloat(document.getElementById('expenses-simple-' + monthNum)?.value) || 0;
-  const rateEl   = document.getElementById('savings-rate-' + monthNum);
   const expEl    = document.getElementById('total-exp-' + monthNum);
-  if (expEl)  expEl.textContent  = '฿' + expenses.toLocaleString('th-TH');
+  const rateEl   = document.getElementById('savings-rate-' + monthNum);
+  if (expEl)  expEl.textContent = '฿' + expenses.toLocaleString('th-TH');
   if (rateEl && income) {
     const rate = ((income - expenses) / income * 100).toFixed(1);
     rateEl.textContent = rate + '%';
