@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Development Plan — MND Workshop</title>
+<style>
+  :root {
+    --navy:    #1A1A2E;
+    --mid:     #16213E;
+    --card:    #1E2A45;
+    --card2:   #243050;
+    --accent:  #E94560;
+    --gold:    #F5A623;
+    --green:   #27AE60;
+    --blue:    #3498DB;
+    --purple:  #9B59B6;
+    --teal:    #1ABC9C;
+    --white:   #FFFFFF;
+    --gray:    #8892A4;
+    --text:    #E8ECF4;
+    --border:  rgba(255,255,255,.07);
+    --border2: rgba(255,255,255,.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--navy); color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+  .two-col { display: grid; grid-template-columns: 340px 1fr; gap: 2rem; align-items: start; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── HEADER ── */
+  .header { padding: 3rem 0 2rem; }
+  .badge {
+    display: inline-block;
+    background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.4);
+    color: var(--accent); font-size: .72rem; font-weight: 700;
+    letter-spacing: 1.5px; padding: .25rem .8rem;
+    border-radius: 999px; text-transform: uppercase; margin-bottom: 1rem;
+  }
+  h1 { font-size: 1.9rem; font-weight: 800; color: var(--white); margin-bottom: .4rem; }
+  .subtitle { color: var(--gray); font-size: .9rem; }
+  .sec-label {
+    font-size: .68rem; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: .75rem;
+  }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  code {
+    background: rgba(255,255,255,.08); border-radius: 4px;
+    padding: .1rem .35rem; font-size: .8rem; color: var(--gold);
+    font-family: 'Consolas', monospace;
+  }
+
+  /* ── PHASE SIDEBAR ── */
+  .phase-nav { display: flex; flex-direction: column; gap: .5rem; position: sticky; top: 1.5rem; }
+  .pnav-item {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .65rem 1rem; border-radius: 9px; cursor: pointer;
+    border: 1px solid transparent; transition: all .2s;
+    text-decoration: none; color: var(--gray);
+  }
+  .pnav-item:hover { background: rgba(255,255,255,.04); color: var(--text); }
+  .pnav-item.active { background: var(--card); border-color: var(--border2); color: var(--white); }
+  .pnav-dot {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 700;
+  }
+  .pnav-text { font-size: .85rem; font-weight: 600; }
+  .pnav-sub  { font-size: .74rem; color: var(--gray); }
+  .pnav-badge {
+    margin-left: auto; font-size: .68rem; font-weight: 700;
+    padding: .15rem .5rem; border-radius: 999px;
+  }
+  .done-count { font-size: .72rem; color: var(--gray); margin-left: auto; }
+
+  /* phase colors */
+  .p0 { background: rgba(133,133,133,.2); color: var(--gray); }
+  .p1 { background: rgba(52,152,219,.2);  color: var(--blue); }
+  .p2 { background: rgba(233,69,96,.2);   color: var(--accent); }
+  .p3 { background: rgba(245,166,35,.2);  color: var(--gold); }
+  .p4 { background: rgba(39,174,96,.2);   color: var(--green); }
+  .p5 { background: rgba(155,89,182,.2);  color: var(--purple); }
+  .p6 { background: rgba(26,188,156,.2);  color: var(--teal); }
+  .p7 { background: rgba(231,76,60,.2);   color: #E74C3C; }
+
+  /* ── PHASE CARDS ── */
+  .phases { display: flex; flex-direction: column; gap: 1.75rem; }
+  .phase-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .phase-header {
+    padding: 1.1rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-num {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .85rem; font-weight: 800;
+  }
+  .phase-title { flex: 1; }
+  .phase-title h2 { font-size: 1rem; color: var(--white); }
+  .phase-title p  { font-size: .78rem; color: var(--gray); margin-top: .15rem; }
+  .phase-est {
+    font-size: .75rem; color: var(--gray);
+    background: rgba(255,255,255,.05); border: 1px solid var(--border);
+    padding: .25rem .65rem; border-radius: 6px; white-space: nowrap;
+  }
+
+  .phase-body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+  /* ── TODO LIST ── */
+  .todo-list { display: flex; flex-direction: column; gap: .4rem; }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: .75rem;
+    padding: .5rem .65rem; border-radius: 7px;
+    transition: background .15s; cursor: pointer;
+  }
+  .todo-item:hover { background: rgba(255,255,255,.03); }
+  .todo-item input[type=checkbox] { display: none; }
+  .check-box {
+    width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: .15rem; transition: all .2s;
+  }
+  .todo-item.checked .check-box {
+    background: var(--green); border-color: var(--green);
+  }
+  .todo-item.checked .check-box::after { content: '✓'; font-size: .7rem; color: white; font-weight: 700; }
+  .todo-item.checked .todo-text { color: var(--gray); text-decoration: line-through; }
+  .todo-text { font-size: .85rem; color: var(--text); line-height: 1.4; }
+  .todo-text small { display: block; color: var(--gray); font-size: .75rem; margin-top: .1rem; }
+  .todo-tag {
+    margin-left: auto; font-size: .68rem; padding: .15rem .5rem;
+    border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+  }
+  .tag-py   { background: rgba(52,152,219,.15); color: var(--blue); border: 1px solid rgba(52,152,219,.2); }
+  .tag-html { background: rgba(245,166,35,.15); color: var(--gold); border: 1px solid rgba(245,166,35,.2); }
+  .tag-sql  { background: rgba(39,174,96,.15);  color: var(--green); border: 1px solid rgba(39,174,96,.2); }
+  .tag-css  { background: rgba(155,89,182,.15); color: var(--purple); border: 1px solid rgba(155,89,182,.2); }
+
+  /* ── FEATURES ── */
+  .features { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .feat {
+    font-size: .78rem; padding: .3rem .75rem; border-radius: 6px;
+    background: rgba(255,255,255,.05); border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .feat.core { border-color: rgba(233,69,96,.3); color: var(--accent); background: rgba(233,69,96,.07); }
+
+  /* ── WIREFRAME ── */
+  .mockup {
+    background: #0D1321; border: 1px solid var(--border2);
+    border-radius: 10px; overflow: hidden; font-family: 'Consolas', monospace;
+    font-size: .75rem;
+  }
+  .mockup-bar {
+    background: #16213E; padding: .45rem .75rem;
+    display: flex; align-items: center; gap: .4rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .mockup-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .mockup-url {
+    background: rgba(255,255,255,.06); border-radius: 4px;
+    padding: .15rem .6rem; font-size: .7rem; color: var(--gray);
+    margin-left: .25rem;
+  }
+  .mockup-body { padding: .75rem; }
+
+  /* wireframe elements */
+  .wf-nav {
+    background: #1A2744; border: 1px solid #2A3A5A;
+    border-radius: 5px; padding: .4rem .75rem; margin-bottom: .6rem;
+    display: flex; gap: 1rem; align-items: center;
+  }
+  .wf-nav-logo { color: var(--accent); font-weight: 700; font-size: .78rem; }
+  .wf-nav-links { display: flex; gap: .75rem; }
+  .wf-nav-link { color: var(--gray); font-size: .68rem; }
+  .wf-nav-link.active { color: var(--white); }
+
+  .wf-row { display: flex; gap: .5rem; margin-bottom: .5rem; }
+  .wf-col { flex: 1; }
+
+  .wf-card {
+    background: #1E2A45; border: 1px solid #2A3A5A;
+    border-radius: 5px; padding: .5rem .65rem; margin-bottom: .5rem;
+  }
+  .wf-card-title { color: var(--gray); font-size: .65rem; margin-bottom: .2rem; }
+  .wf-card-value { color: var(--white); font-size: .85rem; font-weight: 700; }
+  .wf-card-sub   { color: var(--gray); font-size: .62rem; }
+
+  .wf-kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: .4rem; margin-bottom: .5rem; }
+  .wf-kpi {
+    background: #1E2A45; border: 1px solid #2A3A5A;
+    border-radius: 5px; padding: .4rem .5rem; text-align: center;
+  }
+  .wf-kpi-label { color: var(--gray); font-size: .58rem; }
+  .wf-kpi-val   { color: var(--white); font-size: .78rem; font-weight: 700; }
+
+  .wf-chart {
+    background: #1E2A45; border: 1px solid #2A3A5A;
+    border-radius: 5px; height: 50px; display: flex;
+    align-items: flex-end; gap: 3px; padding: .35rem;
+    margin-bottom: .5rem;
+  }
+  .wf-bar { background: var(--accent); border-radius: 2px 2px 0 0; flex: 1; opacity: .7; }
+  .wf-bar.hi { background: var(--green); }
+
+  .wf-table {
+    background: #1E2A45; border: 1px solid #2A3A5A;
+    border-radius: 5px; overflow: hidden; margin-bottom: .5rem;
+  }
+  .wf-thead { background: #243050; display: flex; }
+  .wf-th { flex: 1; padding: .3rem .45rem; color: var(--gray); font-size: .62rem; border-right: 1px solid #2A3A5A; }
+  .wf-tr { display: flex; border-top: 1px solid #2A3A5A; }
+  .wf-td { flex: 1; padding: .28rem .45rem; color: var(--text); font-size: .65rem; border-right: 1px solid #2A3A5A; }
+  .wf-td.dim { color: var(--gray); }
+  .wf-badge {
+    display: inline-block; font-size: .58rem; padding: .1rem .35rem;
+    border-radius: 3px;
+  }
+  .wf-badge.paw    { background: rgba(39,174,96,.2);  color: var(--green); }
+  .wf-badge.aaw    { background: rgba(245,166,35,.2); color: var(--gold); }
+  .wf-badge.active { background: rgba(52,152,219,.2); color: var(--blue); }
+  .wf-badge.done   { background: rgba(39,174,96,.2);  color: var(--green); }
+
+  .wf-form { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .5rem; }
+  .wf-form-row { display: grid; grid-template-columns: repeat(3,1fr); gap: .35rem; }
+  .wf-field {
+    background: #0D1321; border: 1px solid #2A3A5A;
+    border-radius: 4px; padding: .3rem .45rem;
+  }
+  .wf-label { color: var(--gray); font-size: .58rem; }
+  .wf-input { color: var(--text); font-size: .68rem; margin-top: .1rem; }
+  .wf-input.placeholder { color: #444; }
+
+  .wf-btn {
+    display: inline-block; background: var(--accent); color: white;
+    font-size: .65rem; padding: .3rem .7rem; border-radius: 4px;
+    font-weight: 700;
+  }
+  .wf-btn.ghost { background: transparent; border: 1px solid #2A3A5A; color: var(--gray); }
+
+  .wf-progress {
+    background: rgba(255,255,255,.06); border-radius: 3px; height: 6px;
+    margin-top: .25rem; overflow: hidden;
+  }
+  .wf-progress-bar { height: 100%; border-radius: 3px; }
+
+  .wf-section-title {
+    color: var(--accent); font-size: .65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    margin: .5rem 0 .3rem; padding-top: .3rem;
+    border-top: 1px solid #2A3A5A;
+  }
+
+  .wf-goals-horizon {
+    background: #243050; border-radius: 4px;
+    padding: .3rem .5rem; margin-bottom: .3rem;
+  }
+  .wf-horizon-label { color: var(--gold); font-size: .62rem; font-weight: 700; margin-bottom: .2rem; }
+  .wf-goal-item {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .2rem 0; border-top: 1px solid rgba(255,255,255,.04);
+  }
+  .wf-check { width: 8px; height: 8px; border-radius: 2px; border: 1px solid #2A3A5A; flex-shrink: 0; }
+  .wf-check.done { background: var(--green); border-color: var(--green); }
+  .wf-goal-text { color: var(--text); font-size: .65rem; flex: 1; }
+  .wf-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── PROGRESS BAR ── */
+  .overall-progress { margin-bottom: 2rem; }
+  .prog-label { display: flex; justify-content: space-between; font-size: .82rem; margin-bottom: .5rem; }
+  .prog-label span:first-child { color: var(--text); font-weight: 600; }
+  .prog-label span:last-child  { color: var(--gray); }
+  .prog-track {
+    background: rgba(255,255,255,.06); border-radius: 999px;
+    height: 8px; overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width .4s ease;
+  }
+
+  /* ── SUMMARY ROW ── */
+  .summary-row {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .summary-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem; text-align: center;
+  }
+  .summary-num { font-size: 1.6rem; font-weight: 800; color: var(--white); }
+  .summary-label { font-size: .75rem; color: var(--gray); margin-top: .2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">Development Plan</div>
+    <h1>MND Wealth Workshop — Build Roadmap</h1>
+    <p class="subtitle">Todo list, feature spec, และ wireframe ทุก screen — คลิก checkbox เพื่อ track progress</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-num" id="total-tasks">0</div>
+      <div class="summary-label">Tasks ทั้งหมด</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" id="done-tasks" style="color:var(--green)">0</div>
+      <div class="summary-label">เสร็จแล้ว</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num">8</div>
+      <div class="summary-label">Phases</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-num" style="color:var(--gold)">7</div>
+      <div class="summary-label">หน้าจอ</div>
+    </div>
+  </div>
+
+  <!-- OVERALL PROGRESS -->
+  <div class="overall-progress">
+    <div class="prog-label">
+      <span>Overall Progress</span>
+      <span id="prog-pct">0%</span>
+    </div>
+    <div class="prog-track">
+      <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    <!-- SIDEBAR NAV -->
+    <div class="phase-nav">
+      <a class="pnav-item active" href="#p0">
+        <div class="pnav-dot p0">0</div>
+        <div>
+          <div class="pnav-text">Foundation</div>
+          <div class="pnav-sub">Flask skeleton + DB + Utils</div>
+        </div>
+        <span class="done-count" id="nav0">0/7</span>
+      </a>
+      <a class="pnav-item" href="#p1">
+        <div class="pnav-dot p1">1</div>
+        <div>
+          <div class="pnav-text">Dashboard</div>
+          <div class="pnav-sub">PAW status + KPIs</div>
+        </div>
+        <span class="done-count" id="nav1">0/4</span>
+      </a>
+      <a class="pnav-item" href="#p2">
+        <div class="pnav-dot p2">2</div>
+        <div>
+          <div class="pnav-text">Monthly Log</div>
+          <div class="pnav-sub">กรอกรายเดือน</div>
+        </div>
+        <span class="done-count" id="nav2">0/4</span>
+      </a>
+      <a class="pnav-item" href="#p3">
+        <div class="pnav-dot p3">3</div>
+        <div>
+          <div class="pnav-text">Annual Budget</div>
+          <div class="pnav-sub">หมวดรายจ่าย</div>
+        </div>
+        <span class="done-count" id="nav3">0/4</span>
+      </a>
+      <a class="pnav-item" href="#p4">
+        <div class="pnav-dot p4">4</div>
+        <div>
+          <div class="pnav-text">Goals Matrix</div>
+          <div class="pnav-sub">5 time horizons</div>
+        </div>
+        <span class="done-count" id="nav4">0/4</span>
+      </a>
+      <a class="pnav-item" href="#p5">
+        <div class="pnav-dot p5">5</div>
+        <div>
+          <div class="pnav-text">Planning Time</div>
+          <div class="pnav-sub">ชั่วโมงวางแผน</div>
+        </div>
+        <span class="done-count" id="nav5">0/3</span>
+      </a>
+      <a class="pnav-item" href="#p6">
+        <div class="pnav-dot p6">6</div>
+        <div>
+          <div class="pnav-text">Annual Review</div>
+          <div class="pnav-sub">คำถามสิ้นปี</div>
+        </div>
+        <span class="done-count" id="nav6">0/3</span>
+      </a>
+      <a class="pnav-item" href="#p7">
+        <div class="pnav-dot p7">7</div>
+        <div>
+          <div class="pnav-text">Export Excel</div>
+          <div class="pnav-sub">ดาวน์โหลด .xlsx</div>
+        </div>
+        <span class="done-count" id="nav7">0/3</span>
+      </a>
+    </div>
+
+    <!-- PHASES -->
+    <div class="phases">
+
+      <!-- PHASE 0: Foundation -->
+      <div class="phase-card" id="p0">
+        <div class="phase-header">
+          <div class="phase-num p0">0</div>
+          <div class="phase-title">
+            <h2>Foundation — Skeleton ก่อน code route แรก</h2>
+            <p>ทุก route depend on ชั้นนี้ ต้องเสร็จก่อน</p>
+          </div>
+          <div class="phase-est">~2 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Todo</div>
+          <div class="todo-list" data-phase="0">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">สร้าง folder structure ทั้งหมด
+                <small>src/ routes/ utils/ templates/ static/ data/</small>
+              </div>
+              <span class="todo-tag tag-py">shell</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/main.py</code> — entry point
+                <small>import app, set port 5000, debug mode</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/app.py</code> — สร้าง Flask app + register blueprints</div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/db.py</code> — init DB + CREATE TABLE ทั้ง 6 ตาราง
+                <small>auto-create data/mnd-data.db ถ้ายังไม่มี</small>
+              </div>
+              <span class="todo-tag tag-sql">SQL</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/utils/paw.py</code>
+                <small>calc_expected_nw, get_paw_status, calc_savings_rate, calc_multiplier</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/utils/db_helpers.py</code>
+                <small>fetch_one, fetch_all, execute, upsert</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/utils/date_helpers.py</code> + <code>src/templates/base.html</code>
+                <small>navbar, sidebar, CSS link, Jinja2 block content</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 1: Dashboard -->
+      <div class="phase-card" id="p1">
+        <div class="phase-header">
+          <div class="phase-num p1">1</div>
+          <div class="phase-title">
+            <h2>Dashboard — <code>GET /</code></h2>
+            <p>หน้าแรกที่เห็นทุกครั้งที่เปิด localhost:5000</p>
+          </div>
+          <div class="phase-est">~2 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">PAW / UAW / AAW status</span>
+            <span class="feat core">Net Worth vs Expected</span>
+            <span class="feat core">Savings Rate ปีนี้</span>
+            <span class="feat">Planning Hours avg</span>
+            <span class="feat">Net Worth trend bar chart</span>
+            <span class="feat">Year selector</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="1">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/dashboard.py</code>
+                <small>query profile + monthly_log ปีนี้ → ส่งไป template</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">คำนวณ PAW status ผ่าน <code>utils/paw.py</code>
+                <small>ดึง age+income จาก profile, net_worth จาก monthly_log ล่าสุด</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/dashboard.html</code>
+                <small>KPI cards, status badge, net worth bar chart (CSS bars)</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">First-run flow — ถ้ายังไม่มี profile redirect ไป setup page</div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Wireframe</div>
+          <div class="mockup">
+            <div class="mockup-bar">
+              <div class="mockup-dot" style="background:#ff5f57"></div>
+              <div class="mockup-dot" style="background:#febc2e"></div>
+              <div class="mockup-dot" style="background:#28c840"></div>
+              <div class="mockup-url">localhost:5000/</div>
+            </div>
+            <div class="mockup-body">
+              <div class="wf-nav">
+                <span class="wf-nav-logo">MND</span>
+                <div class="wf-nav-links">
+                  <span class="wf-nav-link active">Dashboard</span>
+                  <span class="wf-nav-link">Budget</span>
+                  <span class="wf-nav-link">Monthly</span>
+                  <span class="wf-nav-link">Goals</span>
+                  <span class="wf-nav-link">Planning</span>
+                  <span class="wf-nav-link">Review</span>
+                </div>
+              </div>
+              <!-- Status card -->
+              <div class="wf-row">
+                <div class="wf-col">
+                  <div class="wf-card" style="border-color:rgba(39,174,96,.3)">
+                    <div class="wf-card-title">Status ปี 2026</div>
+                    <div class="wf-card-value"><span class="wf-badge paw">PAW ✓</span></div>
+                    <div class="wf-card-sub">multiplier 2.3×</div>
+                  </div>
+                </div>
+                <div class="wf-col">
+                  <div class="wf-card">
+                    <div class="wf-card-title">Net Worth ปัจจุบัน</div>
+                    <div class="wf-card-value">฿2,300,000</div>
+                    <div class="wf-card-sub">expected ฿1,000,000</div>
+                  </div>
+                </div>
+              </div>
+              <!-- KPI row -->
+              <div class="wf-kpi-row">
+                <div class="wf-kpi"><div class="wf-kpi-label">Savings Rate</div><div class="wf-kpi-val" style="color:var(--green)">24%</div></div>
+                <div class="wf-kpi"><div class="wf-kpi-label">Planning hrs/mo</div><div class="wf-kpi-val">9.2</div></div>
+                <div class="wf-kpi"><div class="wf-kpi-label">Budget ตาม</div><div class="wf-kpi-val">8/12</div></div>
+                <div class="wf-kpi"><div class="wf-kpi-label">Goals done</div><div class="wf-kpi-val">3/5</div></div>
+              </div>
+              <!-- Chart -->
+              <div style="color:var(--gray);font-size:.62rem;margin-bottom:.25rem">Net Worth รายเดือน</div>
+              <div class="wf-chart">
+                <div class="wf-bar" style="height:40%"></div>
+                <div class="wf-bar" style="height:45%"></div>
+                <div class="wf-bar" style="height:50%"></div>
+                <div class="wf-bar" style="height:48%"></div>
+                <div class="wf-bar" style="height:60%"></div>
+                <div class="wf-bar" style="height:65%"></div>
+                <div class="wf-bar hi" style="height:80%"></div>
+                <div class="wf-bar hi" style="height:75%"></div>
+                <div class="wf-bar hi" style="height:85%"></div>
+                <div class="wf-bar hi" style="height:90%"></div>
+                <div class="wf-bar hi" style="height:95%"></div>
+                <div class="wf-bar hi" style="height:100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 2: Monthly Log -->
+      <div class="phase-card" id="p2">
+        <div class="phase-header">
+          <div class="phase-num p2">2</div>
+          <div class="phase-title">
+            <h2>Monthly Log — <code>GET/POST /monthly</code></h2>
+            <p>core loop — กรอกทุกเดือน ~15 นาที</p>
+          </div>
+          <div class="phase-est">~2 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">กรอก income / expenses / net worth</span>
+            <span class="feat core">คำนวณ savings rate อัตโนมัติ</span>
+            <span class="feat core">เลือกเดือน + ปี</span>
+            <span class="feat">บันทึก top overspend category</span>
+            <span class="feat">Note / Lesson ของเดือน</span>
+            <span class="feat">ดู summary ทุกเดือนในปีเดียวกัน</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="2">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/monthly.py</code>
+                <small>GET: ดึงข้อมูล, POST: upsert + คำนวณ savings_rate</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/monthly.html</code>
+                <small>form กรอก + ตาราง 12 เดือน summary</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">คำนวณ savings_rate = (income - expenses) / income × 100
+                <small>ผ่าน utils/paw.calc_savings_rate() ก่อน insert</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">Flash message เมื่อบันทึกสำเร็จ + validation ฟิลด์บังคับ</div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Wireframe</div>
+          <div class="mockup">
+            <div class="mockup-bar">
+              <div class="mockup-dot" style="background:#ff5f57"></div>
+              <div class="mockup-dot" style="background:#febc2e"></div>
+              <div class="mockup-dot" style="background:#28c840"></div>
+              <div class="mockup-url">localhost:5000/monthly</div>
+            </div>
+            <div class="mockup-body">
+              <div class="wf-nav">
+                <span class="wf-nav-logo">MND</span>
+                <div class="wf-nav-links">
+                  <span class="wf-nav-link">Dashboard</span>
+                  <span class="wf-nav-link active">Monthly</span>
+                </div>
+              </div>
+              <!-- Form -->
+              <div style="display:flex;gap:.4rem;margin-bottom:.4rem">
+                <div class="wf-field" style="width:60px"><div class="wf-label">ปี</div><div class="wf-input">2026</div></div>
+                <div class="wf-field" style="width:70px"><div class="wf-label">เดือน</div><div class="wf-input">กรกฎาคม</div></div>
+              </div>
+              <div class="wf-form">
+                <div class="wf-form-row">
+                  <div class="wf-field"><div class="wf-label">รายได้ (฿)</div><div class="wf-input">100,000</div></div>
+                  <div class="wf-field"><div class="wf-label">รายจ่าย (฿)</div><div class="wf-input">76,000</div></div>
+                  <div class="wf-field"><div class="wf-label">Savings Rate</div><div class="wf-input" style="color:var(--green)">24% ←auto</div></div>
+                </div>
+                <div class="wf-form-row">
+                  <div class="wf-field"><div class="wf-label">Net Worth (฿)</div><div class="wf-input">2,300,000</div></div>
+                  <div class="wf-field"><div class="wf-label">หมวดบานปลาย</div><div class="wf-input">อาหารนอกบ้าน</div></div>
+                  <div class="wf-field"><div class="wf-label">Note</div><div class="wf-input placeholder">เขียน lesson...</div></div>
+                </div>
+              </div>
+              <div style="margin-bottom:.5rem"><span class="wf-btn">บันทึก</span></div>
+              <!-- Summary table -->
+              <div style="color:var(--gray);font-size:.62rem;margin-bottom:.25rem">สรุปปี 2026</div>
+              <div class="wf-table">
+                <div class="wf-thead">
+                  <div class="wf-th">เดือน</div><div class="wf-th">รายได้</div>
+                  <div class="wf-th">รายจ่าย</div><div class="wf-th">Rate</div><div class="wf-th">Net Worth</div>
+                </div>
+                <div class="wf-tr"><div class="wf-td">ม.ค.</div><div class="wf-td">100k</div><div class="wf-td">80k</div><div class="wf-td" style="color:var(--gold)">20%</div><div class="wf-td">2.1M</div></div>
+                <div class="wf-tr"><div class="wf-td">ก.พ.</div><div class="wf-td">100k</div><div class="wf-td">78k</div><div class="wf-td" style="color:var(--green)">22%</div><div class="wf-td">2.2M</div></div>
+                <div class="wf-tr"><div class="wf-td dim">มี.ค.–มิ.ย.</div><div class="wf-td dim">...</div><div class="wf-td dim">...</div><div class="wf-td dim">...</div><div class="wf-td dim">...</div></div>
+                <div class="wf-tr"><div class="wf-td">ก.ค.</div><div class="wf-td">100k</div><div class="wf-td">76k</div><div class="wf-td" style="color:var(--green)">24%</div><div class="wf-td">2.3M</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 3: Annual Budget -->
+      <div class="phase-card" id="p3">
+        <div class="phase-header">
+          <div class="phase-num p3">3</div>
+          <div class="phase-title">
+            <h2>Annual Budget — <code>GET/POST /budget</code></h2>
+            <p>กำหนด budget รายหมวด ติดตาม actual vs plan</p>
+          </div>
+          <div class="phase-est">~2.5 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">กรอก monthly budget รายหมวด</span>
+            <span class="feat core">คำนวณ annual budget อัตโนมัติ (×12)</span>
+            <span class="feat core">กรอก actual YTD แต่ละหมวด</span>
+            <span class="feat">% used + variance แสดงทันที</span>
+            <span class="feat">highlight หมวดที่เกิน budget</span>
+            <span class="feat">เพิ่ม / ลบ sub-category เองได้</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="3">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/budget.py</code>
+                <small>GET: ดึง budget_categories ปีนี้, POST: upsert</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/budget.html</code>
+                <small>ตารางหมวดหมู่ + inline edit + color-coded % used</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">Seed default categories จาก Excel template เดิม
+                <small>21 sub-categories ภาษาไทย ใส่ไว้ใน db.py ตอน init</small>
+              </div>
+              <span class="todo-tag tag-sql">SQL</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">แสดง % used bar + สีแดงเมื่อเกิน 100%</div>
+              <span class="todo-tag tag-css">CSS</span>
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Wireframe</div>
+          <div class="mockup">
+            <div class="mockup-bar">
+              <div class="mockup-dot" style="background:#ff5f57"></div>
+              <div class="mockup-dot" style="background:#febc2e"></div>
+              <div class="mockup-dot" style="background:#28c840"></div>
+              <div class="mockup-url">localhost:5000/budget</div>
+            </div>
+            <div class="mockup-body">
+              <div class="wf-nav"><span class="wf-nav-logo">MND</span><div class="wf-nav-links"><span class="wf-nav-link active">Budget</span></div></div>
+              <div class="wf-table">
+                <div class="wf-thead">
+                  <div class="wf-th" style="flex:1.5">หมวด</div>
+                  <div class="wf-th">/เดือน</div>
+                  <div class="wf-th">/ปี</div>
+                  <div class="wf-th">Actual</div>
+                  <div class="wf-th">%</div>
+                </div>
+                <div class="wf-tr" style="background:rgba(245,166,35,.05)">
+                  <div class="wf-td dim" style="flex:1.5;font-weight:700;color:var(--gold)">อาหาร</div>
+                  <div class="wf-td"></div><div class="wf-td"></div><div class="wf-td"></div><div class="wf-td"></div>
+                </div>
+                <div class="wf-tr">
+                  <div class="wf-td" style="flex:1.5;padding-left:.9rem">อาหารที่บ้าน</div>
+                  <div class="wf-td">5,000</div><div class="wf-td">60,000</div><div class="wf-td">38,000</div>
+                  <div class="wf-td">
+                    <div style="font-size:.62rem;color:var(--green)">63%</div>
+                    <div class="wf-progress"><div class="wf-progress-bar" style="width:63%;background:var(--green)"></div></div>
+                  </div>
+                </div>
+                <div class="wf-tr">
+                  <div class="wf-td" style="flex:1.5;padding-left:.9rem">อาหารนอกบ้าน</div>
+                  <div class="wf-td">3,000</div><div class="wf-td">36,000</div><div class="wf-td">34,500</div>
+                  <div class="wf-td">
+                    <div style="font-size:.62rem;color:var(--accent)">96%</div>
+                    <div class="wf-progress"><div class="wf-progress-bar" style="width:96%;background:var(--accent)"></div></div>
+                  </div>
+                </div>
+                <div class="wf-tr"><div class="wf-td dim" style="flex:1.5">เครื่องดื่ม/กาแฟ</div><div class="wf-td dim">1,000</div><div class="wf-td dim">12,000</div><div class="wf-td dim">7,200</div><div class="wf-td"><div class="wf-progress"><div class="wf-progress-bar" style="width:60%;background:var(--blue)"></div></div></div></div>
+              </div>
+              <div style="margin-top:.4rem"><span class="wf-btn">บันทึกทั้งหมด</span> <span class="wf-btn ghost">+ เพิ่มหมวด</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 4: Goals -->
+      <div class="phase-card" id="p4">
+        <div class="phase-header">
+          <div class="phase-num p4">4</div>
+          <div class="phase-title">
+            <h2>Goals Matrix — <code>GET/POST /goals</code></h2>
+            <p>เป้าหมาย 5 horizon: daily → lifetime</p>
+          </div>
+          <div class="phase-est">~2 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">เพิ่ม/แก้/ลบ goal แต่ละ horizon</span>
+            <span class="feat core">เปลี่ยน status: active / done / dropped</span>
+            <span class="feat">กรอก deadline + detail</span>
+            <span class="feat">% goals done per horizon</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="4">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/goals.py</code></div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/goals.html</code>
+                <small>แบ่งเป็น 5 section ตาม horizon</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">inline status toggle (click เปลี่ยน active→done)</div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">seed default goals จาก template เดิม</div>
+              <span class="todo-tag tag-sql">SQL</span>
+            </div>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Wireframe</div>
+          <div class="mockup">
+            <div class="mockup-bar">
+              <div class="mockup-dot" style="background:#ff5f57"></div>
+              <div class="mockup-dot" style="background:#febc2e"></div>
+              <div class="mockup-dot" style="background:#28c840"></div>
+              <div class="mockup-url">localhost:5000/goals</div>
+            </div>
+            <div class="mockup-body">
+              <div class="wf-nav"><span class="wf-nav-logo">MND</span><div class="wf-nav-links"><span class="wf-nav-link active">Goals</span></div></div>
+              <div class="wf-goals-horizon">
+                <div class="wf-horizon-label">ANNUAL GOALS — 2026</div>
+                <div class="wf-goal-item"><div class="wf-check done"></div><div class="wf-goal-text">เพิ่ม net worth 10%</div><span class="wf-badge done">done</span></div>
+                <div class="wf-goal-item"><div class="wf-check"></div><div class="wf-goal-text">ออมเงิน ฿300,000</div><span class="wf-badge active">active</span></div>
+                <div class="wf-goal-item"><div class="wf-check"></div><div class="wf-goal-text">ลงทุน DCA ทุกเดือน</div><span class="wf-badge active">active</span></div>
+              </div>
+              <div class="wf-goals-horizon">
+                <div class="wf-horizon-label">LIFETIME GOALS</div>
+                <div class="wf-goal-item"><div class="wf-check"></div><div class="wf-goal-text">Net worth ฿10M ก่อนอายุ 45</div><span class="wf-badge active">active</span></div>
+                <div class="wf-goal-item"><div class="wf-check"></div><div class="wf-goal-text">เกษียณอายุ 50</div><span class="wf-badge active">active</span></div>
+              </div>
+              <div style="margin-top:.4rem"><span class="wf-btn">+ เพิ่ม Goal</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 5: Planning Time -->
+      <div class="phase-card" id="p5">
+        <div class="phase-header">
+          <div class="phase-num p5">5</div>
+          <div class="phase-title">
+            <h2>Planning Time — <code>GET/POST /planning</code></h2>
+            <p>บันทึกชั่วโมงวางแผนการเงินรายเดือน</p>
+          </div>
+          <div class="phase-est">~1 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">กรอกชั่วโมงแต่ละเดือน</span>
+            <span class="feat core">สีแดง/เขียว ตาม target ≥ 8 ชั่วโมง</span>
+            <span class="feat">บันทึก topic + key insight + แหล่ง</span>
+            <span class="feat">ดู total + average ปีนี้</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="5">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/planning.py</code></div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/planning.html</code>
+                <small>ตาราง 12 เดือน + color-coded ตาม target</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">แสดง total hours + months ที่ hit target</div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 6: Annual Review -->
+      <div class="phase-card" id="p6">
+        <div class="phase-header">
+          <div class="phase-num p6">6</div>
+          <div class="phase-title">
+            <h2>Annual Review — <code>GET/POST /review</code></h2>
+            <p>คำถามทบทวนสิ้นปีแบบ guided</p>
+          </div>
+          <div class="phase-est">~1.5 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">คำถาม 5 หมวด (wealth/budget/goals/planning/commitments)</span>
+            <span class="feat core">บันทึกคำตอบแบบ text area</span>
+            <span class="feat">autosave ทุกครั้งที่กรอก</span>
+            <span class="feat">ดูคำตอบปีที่แล้วควบคู่</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="6">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/review.py</code></div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/templates/review.html</code>
+                <small>accordion ตามหมวด, textarea ต่อคำถาม</small>
+              </div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">โหลดคำถามจาก question-bank ฝังใน route</div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 7: Export -->
+      <div class="phase-card" id="p7">
+        <div class="phase-header">
+          <div class="phase-num p7">7</div>
+          <div class="phase-title">
+            <h2>Export Excel — <code>GET /export</code></h2>
+            <p>ดึงข้อมูลจาก DB → สร้าง .xlsx ให้ download</p>
+          </div>
+          <div class="phase-est">~2 ชั่วโมง</div>
+        </div>
+        <div class="phase-body">
+          <div class="sec-label">Features</div>
+          <div class="features">
+            <span class="feat core">export ทุก sheet เหมือน template เดิม</span>
+            <span class="feat core">เลือก export ปีไหนก็ได้</span>
+            <span class="feat">ใช้ utils/excel.py ที่สร้างไว้แล้ว</span>
+          </div>
+
+          <div class="sec-label" style="margin-top:1rem">Todo</div>
+          <div class="todo-list" data-phase="7">
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/utils/excel.py</code> ให้ครบทุก sheet
+                <small>query จาก DB แล้วเขียนลง openpyxl workbook</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">เขียน <code>src/routes/export.py</code>
+                <small>return send_file(BytesIO, mimetype xlsx)</small>
+              </div>
+              <span class="todo-tag tag-py">Python</span>
+            </div>
+            <div class="todo-item" onclick="toggle(this)">
+              <div class="check-box"></div>
+              <div class="todo-text">ปุ่ม Export ใน navbar ทุกหน้า</div>
+              <span class="todo-tag tag-html">HTML</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /phases -->
+  </div><!-- /two-col -->
+</div><!-- /container -->
+
+<script>
+  function toggle(item) {
+    item.classList.toggle('checked');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all   = document.querySelectorAll('.todo-item');
+    const done  = document.querySelectorAll('.todo-item.checked');
+    const total = all.length;
+    const count = done.length;
+    const pct   = total ? Math.round(count / total * 100) : 0;
+
+    document.getElementById('total-tasks').textContent = total;
+    document.getElementById('done-tasks').textContent  = count;
+    document.getElementById('prog-pct').textContent    = pct + '%';
+    document.getElementById('prog-fill').style.width   = pct + '%';
+
+    // Update per-phase nav counts
+    for (let p = 0; p <= 7; p++) {
+      const list  = document.querySelector(`[data-phase="${p}"]`);
+      if (!list) continue;
+      const t = list.querySelectorAll('.todo-item').length;
+      const d = list.querySelectorAll('.todo-item.checked').length;
+      const el = document.getElementById(`nav${p}`);
+      if (el) el.textContent = `${d}/${t}`;
+    }
+  }
+
+  // Smooth scroll highlight
+  document.querySelectorAll('.pnav-item').forEach(link => {
+    link.addEventListener('click', e => {
+      document.querySelectorAll('.pnav-item').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+    });
+  });
+
+  // Init counts
+  updateProgress();
+</script>
+</body>
+</html>
