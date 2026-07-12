@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MND Wealth Workshop</title>
+<style>
+  :root {
+    --navy:   #1A1A2E;
+    --mid:    #16213E;
+    --accent: #E94560;
+    --gold:   #F5A623;
+    --light:  #EAF0FB;
+    --white:  #FFFFFF;
+    --gray:   #8892A4;
+    --green:  #27AE60;
+    --text:   #E8ECF4;
+    --card:   #1E2A45;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(26,26,46,.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(233,69,96,.3);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .nav-logo { font-weight: 700; font-size: 1rem; color: var(--white); letter-spacing: .5px; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: var(--gray); text-decoration: none; font-size: .9rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--white); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 92vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,69,96,.12) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(233,69,96,.15);
+    border: 1px solid rgba(233,69,96,.4);
+    color: var(--accent);
+    font-size: .8rem; font-weight: 600; letter-spacing: 1.5px;
+    padding: .35rem 1rem; border-radius: 999px;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800; line-height: 1.15;
+    color: var(--white);
+    margin-bottom: 1rem;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p {
+    font-size: 1.15rem; color: var(--gray);
+    max-width: 560px; margin: 0 auto 2.5rem;
+  }
+  .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  .btn {
+    padding: .75rem 1.75rem; border-radius: 8px;
+    font-size: .95rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+  }
+  .btn-primary { background: var(--accent); color: var(--white); border: none; }
+  .btn-primary:hover { background: #c73652; transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,.2); }
+  .btn-outline:hover { border-color: var(--white); color: var(--white); }
+
+  .hero-stats {
+    display: flex; gap: 3rem; margin-top: 4rem;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--white); }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-size: .8rem; color: var(--gray); letter-spacing: .5px; margin-top: .2rem; }
+
+  /* ── SECTION ── */
+  section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label {
+    font-size: .75rem; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: .75rem;
+  }
+  .section-title { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; color: var(--white); margin-bottom: 1rem; }
+  .section-sub { color: var(--gray); max-width: 540px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid rgba(255,255,255,.07); max-width: 1100px; margin: 0 auto; }
+
+  /* ── 4 QUESTIONS ── */
+  .questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .q-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 12px; padding: 1.75rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .q-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .q-num {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.4);
+    color: var(--accent); font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .q-card h3 { font-size: 1rem; color: var(--white); margin-bottom: .5rem; }
+  .q-card p { font-size: .875rem; color: var(--gray); }
+  .q-tag {
+    display: inline-block; margin-top: 1rem;
+    background: rgba(245,166,35,.1); border: 1px solid rgba(245,166,35,.3);
+    color: var(--gold); font-size: .75rem; padding: .2rem .6rem; border-radius: 4px;
+  }
+
+  /* ── TOOLKIT ── */
+  .toolkit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-top: 3rem;
+  }
+  .tool-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 10px; padding: 1.5rem;
+  }
+  .tool-icon { font-size: 1.8rem; margin-bottom: .75rem; }
+  .tool-card h3 { font-size: .95rem; color: var(--white); margin-bottom: .4rem; }
+  .tool-card p { font-size: .82rem; color: var(--gray); }
+
+  /* ── CADENCE TIMELINE ── */
+  .timeline { margin-top: 3rem; display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: grid; grid-template-columns: 120px 1fr;
+    gap: 0 2rem; position: relative;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute; left: 119px; top: 28px; bottom: -1px;
+    width: 2px; background: rgba(255,255,255,.07);
+  }
+  .timeline-item:last-child::before { display: none; }
+  .t-period {
+    padding: 1.5rem 0;
+    font-size: .8rem; font-weight: 700; color: var(--accent);
+    letter-spacing: .5px; text-align: right;
+  }
+  .t-body {
+    border-left: 2px solid rgba(255,255,255,.07);
+    padding: 1.5rem 0 1.5rem 2rem;
+    position: relative;
+  }
+  .t-body::before {
+    content: '';
+    position: absolute; left: -5px; top: 28px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .t-body h3 { font-size: 1rem; color: var(--white); margin-bottom: .3rem; }
+  .t-body p { font-size: .875rem; color: var(--gray); }
+
+  /* ── PAW CALCULATOR ── */
+  .calc-box {
+    background: var(--card);
+    border: 1px solid rgba(233,69,96,.2);
+    border-radius: 16px; padding: 2.5rem;
+    margin-top: 3rem; max-width: 560px;
+  }
+  .calc-box h3 { font-size: 1.1rem; color: var(--white); margin-bottom: 1.5rem; }
+  .calc-row { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+  .calc-row label { font-size: .8rem; color: var(--gray); font-weight: 600; letter-spacing: .5px; }
+  .calc-row input {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px; color: var(--white);
+    font-size: 1rem; padding: .65rem 1rem;
+    outline: none; transition: border-color .2s;
+    width: 100%;
+  }
+  .calc-row input:focus { border-color: var(--accent); }
+  .calc-result {
+    background: rgba(233,69,96,.08);
+    border: 1px solid rgba(233,69,96,.2);
+    border-radius: 10px; padding: 1.25rem;
+    margin-top: 1.5rem; display: none;
+  }
+  .calc-result.show { display: block; }
+  .result-label { font-size: .8rem; color: var(--gray); margin-bottom: .25rem; }
+  .result-value { font-size: 1.5rem; font-weight: 800; color: var(--white); }
+  .result-status { font-size: 1.1rem; font-weight: 700; margin-top: .75rem; }
+  .status-paw { color: var(--green); }
+  .status-aaw { color: var(--gold); }
+  .status-uaw { color: var(--accent); }
+  .calc-btn {
+    width: 100%; margin-top: 1rem; padding: .8rem;
+    background: var(--accent); color: var(--white);
+    border: none; border-radius: 8px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: background .2s;
+  }
+  .calc-btn:hover { background: #c73652; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 3rem 2rem;
+    border-top: 1px solid rgba(255,255,255,.07);
+    color: var(--gray); font-size: .85rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .hero-stats { gap: 1.5rem; }
+    .timeline-item { grid-template-columns: 80px 1fr; }
+    .t-period { font-size: .7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">MND <span>Wealth</span> Workshop</div>
+  <div class="nav-links">
+    <a href="#questions">4 คำถาม</a>
+    <a href="#toolkit">Toolkit</a>
+    <a href="#cadence">Cadence</a>
+    <a href="#calculator">Calculator</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Inspired by The Millionaire Next Door</div>
+  <h1>Workshop สร้างความมั่งคั่ง<br>แบบ <em>PAW</em> ไม่ใช่แค่รวย</h1>
+  <p>ระบบ Workshop ประจำปีที่ช่วยให้คุณตอบ 4 คำถามสำคัญ วางเป้าหมาย และติดตามความมั่งคั่งได้อย่างมีระบบ — ทำซ้ำได้ทุกปี</p>
+  <div class="hero-cta">
+    <a href="#calculator" class="btn btn-primary">ทดสอบ PAW Status ของคุณ</a>
+    <a href="https://github.com/Paopasatiht/Millionaire-Next-Door---Wealth-Workshop" target="_blank" class="btn btn-outline">ดู GitHub Repo →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">4</div>
+      <div class="stat-label">คำถามหลัก</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6</div>
+      <div class="stat-label">Excel Sheets</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">8<span>+</span></div>
+      <div class="stat-label">ชั่วโมง/เดือน (เป้าหมาย)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">ทำซ้ำได้ทุกปี</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- 4 QUESTIONS -->
+<section id="questions">
+  <div class="section-label">Foundation</div>
+  <div class="section-title">4 คำถามที่แยก PAW ออกจาก UAW</div>
+  <p class="section-sub">จากงานวิจัยของ Dr. Thomas Stanley ใน The Millionaire Next Door — คนที่สร้างความมั่งคั่งได้จริงตอบคำถาม 4 ข้อนี้ได้ คนที่ตอบไม่ได้มักเป็น Under-Accumulator</p>
+  <div class="questions-grid">
+    <div class="q-card">
+      <div class="q-num">1</div>
+      <h3>คุณมี Annual Budget เป็นลายลักษณ์อักษรไหม?</h3>
+      <p>PAW ไม่ได้แค่รู้สึกว่าตัวเองประหยัด — พวกเขามีตัวเลขจริงที่ติดตามทุกเดือน</p>
+      <span class="q-tag">Annual Budget Sheet</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">2</div>
+      <h3>คุณรู้ไหมว่าครอบครัวจ่ายเงินไปกับอะไรบ้างในแต่ละปี?</h3>
+      <p>ไม่ใช่แค่ประมาณ — รู้จริงว่าอาหาร เสื้อผ้า ที่อยู่อาศัย แต่ละอย่างเท่าไหร่</p>
+      <span class="q-tag">Monthly Log Sheet</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">3</div>
+      <h3>คุณมีเป้าหมายชัดเจนในทุก Time Horizon ไหม?</h3>
+      <p>ตั้งแต่เป้าหมายสัปดาห์นี้ ไปจนถึง lifetime goal — ทั้ง 5 ขอบเขตต้องมีคำตอบ</p>
+      <span class="q-tag">Goals Matrix Sheet</span>
+    </div>
+    <div class="q-card">
+      <div class="q-num">4</div>
+      <h3>คุณใช้เวลาวางแผนการเงินกี่ชั่วโมงต่อเดือน?</h3>
+      <p>PAW ใช้เวลาศึกษาและวางแผนการลงทุนมากกว่า UAW อย่างมีนัยสำคัญ — เป้าหมาย ≥ 8 ชั่วโมง/เดือน</p>
+      <span class="q-tag">Planning Time Log Sheet</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TOOLKIT -->
+<section id="toolkit">
+  <div class="section-label">What's Inside</div>
+  <div class="section-title">สิ่งที่อยู่ใน Workshop นี้</div>
+  <p class="section-sub">ทุกอย่างถูกออกแบบให้ใช้ซ้ำได้ทุกปีโดยไม่ต้องสร้างใหม่</p>
+  <div class="toolkit-grid">
+    <div class="tool-card">
+      <div class="tool-icon">📊</div>
+      <h3>Dashboard</h3>
+      <p>คำนวณ PAW/UAW status, savings rate, และ KPI ประจำปีแบบ real-time</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">💰</div>
+      <h3>Annual Budget</h3>
+      <p>หมวดรายจ่ายภาษาไทย พร้อม budget vs. actual และ % ที่ใช้ไปแล้ว</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">📅</div>
+      <h3>Monthly Log</h3>
+      <p>กรอกทุกเดือน ~15 นาที — รายได้ รายจ่าย savings rate และ net worth</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🎯</div>
+      <h3>Goals Matrix</h3>
+      <p>เป้าหมาย 5 ขอบเขต: daily → weekly → monthly → annual → lifetime</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">⏱️</div>
+      <h3>Planning Time Log</h3>
+      <p>บันทึกชั่วโมงวางแผนการเงินรายเดือน เพื่อให้ถึง 8 ชั่วโมงเป้าหมาย</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">📝</div>
+      <h3>Annual Review Log</h3>
+      <p>คำถามทบทวนสิ้นปี — wealth, budget, goals, planning, commitments</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">🐍</div>
+      <h3>rollover.py</h3>
+      <p>สคริปต์ Python สร้างไฟล์ปีใหม่โดย carry net worth ที่ปิดปีก่อนมาเป็น baseline อัตโนมัติ</p>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon">📖</div>
+      <h3>Methodology Docs</h3>
+      <p>สรุป PAW/UAW formula, mindset shift, และชุดคำถามสำหรับ review ทุก cadence</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CADENCE -->
+<section id="cadence">
+  <div class="section-label">How to Use</div>
+  <div class="section-title">ใช้งานอย่างไร — ทุกปี ทุกเดือน</div>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="t-period">ปีแรก<br>(Setup)</div>
+      <div class="t-body">
+        <h3>ตั้งต้นระบบ</h3>
+        <p>Copy template ไปไว้ใน <code>instances/2026/</code> → กรอก Profile ใน Dashboard → ตั้ง lifetime goal → กำหนด budget category ที่ใช้จริง</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-period">รายเดือน</div>
+      <div class="t-body">
+        <h3>Monthly Check-in (~15 นาที)</h3>
+        <p>กรอก Monthly Log และ Planning Time Log — รายได้ รายจ่าย savings rate net worth และชั่วโมงวางแผน</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-period">รายไตรมาส</div>
+      <div class="t-body">
+        <h3>ทบทวน Goals Matrix (~30 นาที)</h3>
+        <p>เช็คว่าเป้าหมายยังสอดคล้องกับ lifetime goal ไหม ปรับถ้าจำเป็น</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-period">สิ้นปี</div>
+      <div class="t-body">
+        <h3>Annual Review + Rollover</h3>
+        <p>กรอก Review Log ตอบคำถามทั้งหมด → รัน <code>python rollover.py --year 2027</code> → ระบบ carry net worth ปิดปีมาเป็น baseline ปีใหม่อัตโนมัติ</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PAW CALCULATOR -->
+<section id="calculator">
+  <div class="section-label">Quick Check</div>
+  <div class="section-title">คุณเป็น PAW, AAW หรือ UAW?</div>
+  <p class="section-sub">สูตรจาก The Millionaire Next Door: Expected Net Worth = (อายุ × รายได้ก่อนภาษี) ÷ 10</p>
+  <div class="calc-box">
+    <h3>PAW / UAW Calculator</h3>
+    <div class="calc-row">
+      <label>อายุ (ปี)</label>
+      <input type="number" id="age" placeholder="35" min="18" max="80">
+    </div>
+    <div class="calc-row">
+      <label>รายได้ต่อปีก่อนภาษี (฿)</label>
+      <input type="number" id="income" placeholder="1,200,000" min="0">
+    </div>
+    <div class="calc-row">
+      <label>Net Worth ปัจจุบัน (฿)</label>
+      <input type="number" id="networth" placeholder="2,000,000" min="0">
+    </div>
+    <button class="calc-btn" onclick="calculate()">คำนวณ Status</button>
+    <div class="calc-result" id="result">
+      <div class="result-label">Net Worth ที่ควรมี (Expected)</div>
+      <div class="result-value" id="expected">-</div>
+      <div class="result-label" style="margin-top:.75rem">Multiplier (Actual ÷ Expected)</div>
+      <div class="result-value" id="multiplier">-</div>
+      <div class="result-status" id="status"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>MND Wealth Workshop — Framework based on <em>The Millionaire Next Door</em> by Thomas J. Stanley & William D. Danko</p>
+  <p style="margin-top:.5rem"><a href="https://github.com/Paopasatiht/Millionaire-Next-Door---Wealth-Workshop" target="_blank">GitHub Repo</a> · ข้อมูลการเงินของคุณไม่ถูกส่งไปที่ไหนทั้งสิ้น</p>
+</footer>
+
+<script>
+  function fmt(n) {
+    return '฿' + Math.round(n).toLocaleString('th-TH');
+  }
+
+  function calculate() {
+    const age     = parseFloat(document.getElementById('age').value);
+    const income  = parseFloat(document.getElementById('income').value);
+    const networth = parseFloat(document.getElementById('networth').value);
+
+    if (!age || !income || isNaN(networth)) {
+      alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+      return;
+    }
+
+    const expected = (age * income) / 10;
+    const multiplier = networth / expected;
+
+    document.getElementById('expected').textContent = fmt(expected);
+    document.getElementById('multiplier').textContent = multiplier.toFixed(2) + '×';
+
+    const statusEl = document.getElementById('status');
+    if (multiplier >= 2) {
+      statusEl.textContent = '🏆 PAW — Prodigious Accumulator of Wealth';
+      statusEl.className = 'result-status status-paw';
+    } else if (multiplier >= 0.5) {
+      statusEl.textContent = '📊 AAW — Average Accumulator of Wealth';
+      statusEl.className = 'result-status status-aaw';
+    } else {
+      statusEl.textContent = '⚠️ UAW — Under-Accumulator of Wealth';
+      statusEl.className = 'result-status status-uaw';
+    }
+
+    document.getElementById('result').classList.add('show');
+  }
+
+  // Allow Enter key to trigger calculation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+</script>
+
+</body>
+</html>
