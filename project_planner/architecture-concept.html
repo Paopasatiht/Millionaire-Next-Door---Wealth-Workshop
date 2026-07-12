@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Architecture Concept — MND Workshop</title>
+<title>Architecture Concept v2 — MND Workshop</title>
 <style>
   :root {
     --navy:   #1A1A2E;
@@ -24,11 +24,10 @@
     font-family: 'Segoe UI', system-ui, sans-serif;
     background: var(--navy); color: var(--text);
     line-height: 1.7; padding: 2rem;
-    max-width: 1000px; margin: 0 auto;
+    max-width: 1050px; margin: 0 auto;
   }
   h1 { font-size: 1.8rem; font-weight: 800; color: var(--white); margin-bottom: .5rem; }
-  h2 { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; }
-  h3 { font-size: .9rem; font-weight: 700; color: var(--white); margin-bottom: .5rem; }
+  h2 { font-size: 1.05rem; font-weight: 700; color: var(--white); margin-bottom: 1rem; }
   .badge {
     display: inline-block;
     background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.4);
@@ -43,250 +42,244 @@
     padding: .1rem .4rem; font-size: .82rem; color: var(--gold);
     font-family: 'Consolas', monospace;
   }
-
-  /* ── SECTION LABEL ── */
   .sec-label {
     font-size: .7rem; font-weight: 700; letter-spacing: 2px;
     color: var(--accent); text-transform: uppercase; margin-bottom: .5rem;
   }
 
-  /* ── FLOW ── */
-  .flow-row {
-    display: flex; align-items: center; gap: .75rem;
-    flex-wrap: wrap; margin: 1.25rem 0;
-    background: rgba(0,0,0,.2); border-radius: 10px;
-    padding: 1rem 1.25rem;
-  }
-  .node {
-    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 8px; padding: .4rem .85rem;
-    font-size: .82rem; text-align: center; line-height: 1.4;
-  }
-  .node small { display: block; font-size: .7rem; color: var(--gray); }
-  .node.py  { background: rgba(52,152,219,.12); border-color: rgba(52,152,219,.3); color: var(--blue); }
-  .node.db  { background: rgba(39,174,96,.12);  border-color: rgba(39,174,96,.3);  color: var(--green); }
-  .node.html{ background: rgba(245,166,35,.12); border-color: rgba(245,166,35,.3); color: var(--gold); }
-  .node.git { background: rgba(155,89,182,.12); border-color: rgba(155,89,182,.3); color: var(--purple); }
-  .arrow { color: var(--gray); font-size: 1.1rem; }
-
   /* ── FILE TREE ── */
   .tree {
     background: rgba(0,0,0,.25); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.25rem 1.5rem;
-    font-family: 'Consolas', monospace; font-size: .83rem;
-    line-height: 2;
+    border-radius: 12px; padding: 1.5rem 1.75rem;
+    font-family: 'Consolas', monospace; font-size: .84rem; line-height: 2.1;
   }
-  .tree-dir  { color: var(--gold); }
-  .tree-file { color: var(--text); }
-  .tree-note { color: var(--gray); font-size: .75rem; }
-  .tree-git  { color: var(--accent); }
-  .tree-private { color: var(--green); }
+  .t-root   { color: var(--white); font-weight: 700; }
+  .t-dir    { color: var(--gold); }
+  .t-file   { color: var(--text); }
+  .t-note   { color: var(--gray); font-size: .75rem; font-family: 'Segoe UI', sans-serif; }
+  .t-git    { color: var(--accent); }
+  .t-priv   { color: var(--green); }
+  .t-entry  { color: var(--blue); }
+  .indent1  { padding-left: 1.25rem; }
+  .indent2  { padding-left: 2.5rem; }
+  .indent3  { padding-left: 3.75rem; }
 
-  /* ── DB SCHEMA ── */
-  .schema-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem; }
-  .table-card {
+  /* ── LAYER CARDS ── */
+  .layers { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+  .layer-card {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; overflow: hidden;
+    border-radius: 12px; overflow: hidden;
   }
-  .table-header {
-    background: var(--mid); padding: .65rem 1rem;
-    display: flex; align-items: center; justify-content: space-between;
+  .layer-header {
+    padding: .75rem 1.25rem;
+    display: flex; align-items: center; gap: .75rem;
   }
-  .table-name { font-size: .85rem; font-weight: 700; color: var(--white); }
-  .table-tag  { font-size: .7rem; color: var(--gray); }
-  .table-body { padding: .75rem 1rem; }
-  .field { display: flex; gap: .75rem; padding: .3rem 0; border-bottom: 1px solid var(--border); font-size: .8rem; }
-  .field:last-child { border-bottom: none; }
-  .field-name { color: var(--text); min-width: 140px; font-family: 'Consolas', monospace; }
-  .field-type { color: var(--blue); font-family: 'Consolas', monospace; min-width: 60px; }
-  .field-note { color: var(--gray); font-size: .75rem; }
-  .pk { color: var(--gold); font-family: 'Consolas', monospace; }
+  .layer-header h3 { font-size: .95rem; color: var(--white); }
+  .layer-header .layer-path {
+    font-family: 'Consolas', monospace; font-size: .78rem;
+    padding: .15rem .55rem; border-radius: 5px;
+  }
+  .layer-body { padding: .75rem 1.25rem 1.1rem; }
+  .file-list { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .file-chip {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 7px; padding: .35rem .85rem;
+    font-size: .8rem;
+  }
+  .file-chip .fname { color: var(--text); font-family: 'Consolas', monospace; }
+  .file-chip .fdesc { color: var(--gray); font-size: .74rem; display: block; margin-top: .1rem; }
 
-  /* ── SCREENS ── */
-  .screens-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
-  .screen-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.25rem;
-    transition: border-color .2s;
-  }
-  .screen-card:hover { border-color: rgba(255,255,255,.15); }
-  .screen-icon { font-size: 1.5rem; margin-bottom: .6rem; }
-  .screen-route { font-size: .75rem; color: var(--accent); font-family: 'Consolas', monospace; margin-bottom: .4rem; }
-  .screen-card h3 { font-size: .95rem; margin-bottom: .35rem; }
-  .screen-card p  { font-size: .8rem; color: var(--gray); }
+  /* layer colors */
+  .lh-entry  { background: rgba(233,69,96,.08); border-bottom: 1px solid rgba(233,69,96,.15); }
+  .lh-routes { background: rgba(52,152,219,.08); border-bottom: 1px solid rgba(52,152,219,.15); }
+  .lh-utils  { background: rgba(39,174,96,.08);  border-bottom: 1px solid rgba(39,174,96,.15); }
+  .lh-tmpl   { background: rgba(245,166,35,.08); border-bottom: 1px solid rgba(245,166,35,.15); }
+  .lh-data   { background: rgba(155,89,182,.08); border-bottom: 1px solid rgba(155,89,182,.15); }
 
-  /* ── STARTUP ── */
-  .startup-box {
-    background: rgba(0,0,0,.3); border: 1px solid rgba(39,174,96,.2);
-    border-radius: 10px; padding: 1.25rem 1.5rem;
-  }
-  .cmd { font-family: 'Consolas', monospace; font-size: .88rem; }
-  .cmd .prompt { color: var(--gray); }
-  .cmd .command { color: var(--green); }
-  .cmd .comment { color: var(--gray); font-style: italic; }
+  .path-entry  { background: rgba(233,69,96,.15); color: var(--accent); }
+  .path-routes { background: rgba(52,152,219,.15); color: var(--blue); }
+  .path-utils  { background: rgba(39,174,96,.15); color: var(--green); }
+  .path-tmpl   { background: rgba(245,166,35,.15); color: var(--gold); }
+  .path-data   { background: rgba(155,89,182,.15); color: var(--purple); }
 
-  /* ── DECISIONS ── */
-  .decisions { display: flex; flex-direction: column; gap: .75rem; margin-top: 1rem; }
-  .dec {
+  /* ── UTILS DETAIL ── */
+  .utils-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
+  .util-card {
+    background: var(--card); border: 1px solid rgba(39,174,96,.15);
+    border-radius: 10px; padding: 1.1rem 1.25rem;
+  }
+  .util-file { font-family: 'Consolas', monospace; font-size: .82rem; color: var(--green); margin-bottom: .5rem; font-weight: 700; }
+  .util-card ul { list-style: none; display: flex; flex-direction: column; gap: .3rem; }
+  .util-card li { font-size: .8rem; color: var(--gray); display: flex; gap: .5rem; }
+  .util-card li::before { content: 'fn'; color: rgba(39,174,96,.5); font-family: 'Consolas', monospace; font-size: .72rem; flex-shrink: 0; margin-top: .1rem; }
+
+  /* ── FLOW ── */
+  .flow-box {
+    background: rgba(0,0,0,.2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem 1.5rem; margin-top: 1rem;
+  }
+  .flow-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .75rem; }
+  .flow-row:last-child { margin-bottom: 0; }
+  .fnode {
+    border-radius: 7px; padding: .35rem .85rem;
+    font-size: .8rem; font-family: 'Consolas', monospace;
+  }
+  .fn-red    { background: rgba(233,69,96,.12); border: 1px solid rgba(233,69,96,.25); color: var(--accent); }
+  .fn-blue   { background: rgba(52,152,219,.12); border: 1px solid rgba(52,152,219,.25); color: var(--blue); }
+  .fn-green  { background: rgba(39,174,96,.12); border: 1px solid rgba(39,174,96,.25); color: var(--green); }
+  .fn-gold   { background: rgba(245,166,35,.12); border: 1px solid rgba(245,166,35,.25); color: var(--gold); }
+  .fn-gray   { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--text); }
+  .arrow { color: var(--gray); }
+  .flow-label { font-size: .72rem; color: var(--gray); min-width: 80px; font-style: italic; }
+
+  /* ── OPEN QUESTIONS ── */
+  .q-list { display: flex; flex-direction: column; gap: .75rem; margin-top: 1rem; }
+  .q-item {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 10px; padding: 1rem 1.25rem;
     display: flex; gap: 1rem;
   }
-  .dec-num {
+  .q-num {
     width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
     background: rgba(233,69,96,.15); border: 1px solid rgba(233,69,96,.3);
     color: var(--accent); font-size: .78rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center; margin-top: .15rem;
   }
-  .dec strong { color: var(--white); display: block; font-size: .88rem; margin-bottom: .2rem; }
-  .dec span { color: var(--gray); font-size: .82rem; }
+  .q-item strong { color: var(--white); display: block; font-size: .88rem; margin-bottom: .2rem; }
+  .q-item span   { color: var(--gray); font-size: .82rem; }
 </style>
 </head>
 <body>
 
-<div class="badge">Architecture Concept</div>
-<h1>ระบบ MND Wealth Workshop</h1>
-<p class="subtitle">Python Flask + SQLite — align ก่อน code: structure, schema, หน้าจอ</p>
+<div class="badge">Architecture v2 — Restructured</div>
+<h1>Project Structure ใหม่</h1>
+<p class="subtitle">Python ทั้งหมดอยู่ใน <code>/src</code> — reusable functions แยกไปที่ <code>/src/utils</code></p>
 
-<!-- FLOW -->
-<div class="sec-label">System Flow</div>
-<div class="flow-row">
-  <div class="node py">python app.py<small>start server</small></div>
-  <span class="arrow">→</span>
-  <div class="node html">localhost:5000<small>browser</small></div>
-  <span class="arrow">→</span>
-  <div class="node py">Flask routes<small>app.py</small></div>
-  <span class="arrow">→</span>
-  <div class="node db">mnd-data.db<small>SQLite / data/</small></div>
-  <span class="arrow">⬆ gitignore</span>
-  <div class="node git">GitHub<small>project only</small></div>
-</div>
-
-<hr>
-
-<!-- FILE STRUCTURE -->
-<div class="sec-label">Project Structure</div>
-<h2>ไฟล์อยู่ที่ไหน</h2>
+<!-- FILE TREE -->
+<div class="sec-label">Full File Tree</div>
 <div class="tree">
-  <span class="tree-dir">MND/</span><br>
-  <span>├── </span><span class="tree-file">app.py</span><span class="tree-note">  ← Flask server + routes ทั้งหมด</span><br>
-  <span>├── </span><span class="tree-file">requirements.txt</span><span class="tree-note">  ← flask, openpyxl</span><br>
-  <span>├── </span><span class="tree-dir">templates/</span><span class="tree-note">  ← HTML ที่ Flask render</span><br>
-  <span>│   ├── </span><span class="tree-file">base.html</span><br>
-  <span>│   ├── </span><span class="tree-file">dashboard.html</span><br>
-  <span>│   ├── </span><span class="tree-file">budget.html</span><br>
-  <span>│   ├── </span><span class="tree-file">monthly_log.html</span><br>
-  <span>│   ├── </span><span class="tree-file">goals.html</span><br>
-  <span>│   ├── </span><span class="tree-file">planning_time.html</span><br>
-  <span>│   └── </span><span class="tree-file">review.html</span><br>
-  <span>├── </span><span class="tree-dir">static/</span><span class="tree-note">  ← CSS, JS</span><br>
-  <span>├── </span><span class="tree-dir">data/</span><span class="tree-git">  ← .gitignore ห้ามขึ้น GitHub</span><br>
-  <span>│   └── </span><span class="tree-private">mnd-data.db</span><span class="tree-note">  ← ข้อมูลจริง</span><br>
-  <span>├── </span><span class="tree-dir">scripts/</span><br>
-  <span>│   ├── </span><span class="tree-file">rollover.py</span><br>
-  <span>│   └── </span><span class="tree-file">create_template.py</span><br>
-  <span>├── </span><span class="tree-dir">docs/</span><br>
-  <span>└── </span><span class="tree-dir">project_planner/</span><span class="tree-note">  ← concept HTMLs (repo นี้)</span>
+  <div class="t-root">MND/</div>
+
+  <div class="indent1"><span class="t-file">run.py</span> <span class="t-note">← entry point เดียว — python run.py</span></div>
+  <div class="indent1"><span class="t-file">requirements.txt</span></div>
+  <div class="indent1"><span class="t-file">.gitignore</span></div>
+
+  <div class="indent1 t-dir">src/</div>
+  <div class="indent2"><span class="t-entry">app.py</span> <span class="t-note">← สร้าง Flask app, register blueprints</span></div>
+  <div class="indent2"><span class="t-entry">db.py</span> <span class="t-note">← init DB, get_connection()</span></div>
+
+  <div class="indent2 t-dir" style="color:var(--blue)">routes/</div>
+  <div class="indent3"><span class="t-file">dashboard.py</span></div>
+  <div class="indent3"><span class="t-file">budget.py</span></div>
+  <div class="indent3"><span class="t-file">monthly.py</span></div>
+  <div class="indent3"><span class="t-file">goals.py</span></div>
+  <div class="indent3"><span class="t-file">planning.py</span></div>
+  <div class="indent3"><span class="t-file">review.py</span></div>
+  <div class="indent3"><span class="t-file">export.py</span></div>
+
+  <div class="indent2 t-dir" style="color:var(--green)">utils/</div>
+  <div class="indent3"><span class="t-file">paw.py</span> <span class="t-note">← คำนวณ PAW/UAW, savings rate</span></div>
+  <div class="indent3"><span class="t-file">db_helpers.py</span> <span class="t-note">← query wrappers, insert/update helpers</span></div>
+  <div class="indent3"><span class="t-file">excel.py</span> <span class="t-note">← export to .xlsx ด้วย openpyxl</span></div>
+  <div class="indent3"><span class="t-file">date_helpers.py</span> <span class="t-note">← current year/month, rollover logic</span></div>
+
+  <div class="indent1 t-dir" style="color:var(--gold)">templates/</div>
+  <div class="indent2"><span class="t-file">base.html</span></div>
+  <div class="indent2"><span class="t-file">dashboard.html</span></div>
+  <div class="indent2"><span class="t-file">budget.html</span></div>
+  <div class="indent2"><span class="t-file">monthly.html</span></div>
+  <div class="indent2"><span class="t-file">goals.html</span></div>
+  <div class="indent2"><span class="t-file">planning.html</span></div>
+  <div class="indent2"><span class="t-file">review.html</span></div>
+
+  <div class="indent1 t-dir" style="color:var(--blue)">static/</div>
+  <div class="indent2"><span class="t-file">style.css</span></div>
+  <div class="indent2"><span class="t-file">app.js</span></div>
+
+  <div class="indent1 t-dir t-git">data/</div>
+  <div class="indent2"><span class="t-priv">mnd-data.db</span> <span class="t-git">← .gitignore — ไม่ขึ้น GitHub</span></div>
+
+  <div class="indent1 t-dir" style="color:var(--gray)">docs/</div>
+  <div class="indent1 t-dir" style="color:var(--gray)">project_planner/</div>
+  <div class="indent1 t-dir" style="color:var(--gray)">scripts/</div>
 </div>
 
 <hr>
 
-<!-- DB SCHEMA -->
-<div class="sec-label">Database Schema</div>
-<h2>ตาราง SQLite — map จาก 6 Excel Sheets</h2>
-<div class="schema-grid">
+<!-- LAYERS -->
+<div class="sec-label">แต่ละ Layer ทำอะไร</div>
+<div class="layers">
 
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">profile</span>
-      <span class="table-tag">Dashboard</span>
+  <div class="layer-card">
+    <div class="layer-header lh-entry">
+      <span class="layer-path path-entry">run.py</span>
+      <h3>Entry Point — จุดเดียวที่ user รัน</h3>
     </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">name</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">birth_year</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">annual_income</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">updated_at</span><span class="field-type">TEXT</span></div>
+    <div class="layer-body">
+      <div class="file-list">
+        <div class="file-chip">
+          <span class="fname">run.py</span>
+          <span class="fdesc">import app จาก src → flask run. ไม่มี logic อื่น</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">budget_categories</span>
-      <span class="table-tag">Annual Budget</span>
+  <div class="layer-card">
+    <div class="layer-header lh-routes">
+      <span class="layer-path path-routes">src/routes/</span>
+      <h3>Routes — แต่ละหน้าเป็น Blueprint แยกกัน</h3>
     </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">year</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">category</span><span class="field-type">TEXT</span><span class="field-note">หมวดหลัก</span></div>
-      <div class="field"><span class="field-name">sub_category</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">monthly_budget</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">actual_ytd</span><span class="field-type">REAL</span></div>
-    </div>
-  </div>
-
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">monthly_log</span>
-      <span class="table-tag">Monthly Log</span>
-    </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">year</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">month</span><span class="field-type">INTEGER</span><span class="field-note">1–12</span></div>
-      <div class="field"><span class="field-name">income</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">expenses</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">savings_rate</span><span class="field-type">REAL</span><span class="field-note">คำนวณอัตโนมัติ</span></div>
-      <div class="field"><span class="field-name">net_worth</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">top_overspend</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">note</span><span class="field-type">TEXT</span></div>
+    <div class="layer-body">
+      <div class="file-list">
+        <div class="file-chip"><span class="fname">dashboard.py</span><span class="fdesc">GET / → render + PAW calc</span></div>
+        <div class="file-chip"><span class="fname">budget.py</span><span class="fdesc">GET/POST /budget</span></div>
+        <div class="file-chip"><span class="fname">monthly.py</span><span class="fdesc">GET/POST /monthly</span></div>
+        <div class="file-chip"><span class="fname">goals.py</span><span class="fdesc">GET/POST /goals</span></div>
+        <div class="file-chip"><span class="fname">planning.py</span><span class="fdesc">GET/POST /planning</span></div>
+        <div class="file-chip"><span class="fname">review.py</span><span class="fdesc">GET/POST /review</span></div>
+        <div class="file-chip"><span class="fname">export.py</span><span class="fdesc">GET /export → ดาวน์โหลด .xlsx</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">goals</span>
-      <span class="table-tag">Goals Matrix</span>
+  <div class="layer-card">
+    <div class="layer-header lh-utils">
+      <span class="layer-path path-utils">src/utils/</span>
+      <h3>Utils — functions ที่ใช้ซ้ำได้ ไม่ผูกกับ route ใด</h3>
     </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">horizon</span><span class="field-type">TEXT</span><span class="field-note">daily/weekly/monthly/annual/lifetime</span></div>
-      <div class="field"><span class="field-name">goal_text</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">target_detail</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">deadline</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">status</span><span class="field-type">TEXT</span><span class="field-note">active/done/dropped</span></div>
-      <div class="field"><span class="field-name">year</span><span class="field-type">INTEGER</span></div>
-    </div>
-  </div>
-
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">planning_log</span>
-      <span class="table-tag">Planning Time</span>
-    </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">year</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">month</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">hours</span><span class="field-type">REAL</span></div>
-      <div class="field"><span class="field-name">activities</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">topics</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">key_insight</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">source</span><span class="field-type">TEXT</span></div>
+    <div class="layer-body">
+      <div class="file-list">
+        <div class="file-chip"><span class="fname">paw.py</span><span class="fdesc">calc_expected_nw, get_status, savings_rate</span></div>
+        <div class="file-chip"><span class="fname">db_helpers.py</span><span class="fdesc">fetch_one, fetch_all, upsert</span></div>
+        <div class="file-chip"><span class="fname">excel.py</span><span class="fdesc">export_workbook(year) → BytesIO</span></div>
+        <div class="file-chip"><span class="fname">date_helpers.py</span><span class="fdesc">current_year, current_month, months_list</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="table-card">
-    <div class="table-header">
-      <span class="table-name">annual_review</span>
-      <span class="table-tag">Review Log</span>
+  <div class="layer-card">
+    <div class="layer-header lh-tmpl">
+      <span class="layer-path path-tmpl">templates/</span>
+      <h3>Templates — Jinja2 HTML, extend จาก base.html</h3>
     </div>
-    <div class="table-body">
-      <div class="field"><span class="pk">id</span><span class="field-type">INTEGER</span><span class="field-note">PK</span></div>
-      <div class="field"><span class="field-name">year</span><span class="field-type">INTEGER</span></div>
-      <div class="field"><span class="field-name">question_key</span><span class="field-type">TEXT</span><span class="field-note">slug ของคำถาม</span></div>
-      <div class="field"><span class="field-name">answer</span><span class="field-type">TEXT</span></div>
-      <div class="field"><span class="field-name">updated_at</span><span class="field-type">TEXT</span></div>
+    <div class="layer-body">
+      <div class="file-list">
+        <div class="file-chip"><span class="fname">base.html</span><span class="fdesc">navbar, sidebar, CSS link</span></div>
+        <div class="file-chip"><span class="fname">*.html</span><span class="fdesc">extends base, เติมแต่ content block</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layer-card">
+    <div class="layer-header lh-data">
+      <span class="layer-path path-data">data/ (gitignored)</span>
+      <h3>Data — ข้อมูลจริงอยู่ที่นี่เท่านั้น</h3>
+    </div>
+    <div class="layer-body">
+      <div class="file-list">
+        <div class="file-chip"><span class="fname">mnd-data.db</span><span class="fdesc">SQLite, สร้างอัตโนมัติตอน run ครั้งแรก</span></div>
+      </div>
     </div>
   </div>
 
@@ -294,95 +287,104 @@
 
 <hr>
 
-<!-- SCREENS -->
-<div class="sec-label">Pages / Routes</div>
-<h2>หน้าจอที่จะมีใน localhost:5000</h2>
-<div class="screens-grid">
-  <div class="screen-card">
-    <div class="screen-icon">🏠</div>
-    <div class="screen-route">GET /</div>
-    <h3>Dashboard</h3>
-    <p>PAW/UAW status, savings rate, net worth trend, KPI รายปี</p>
+<!-- UTILS DETAIL -->
+<div class="sec-label">src/utils/ — ใครเรียกใคร</div>
+<div class="utils-grid">
+  <div class="util-card">
+    <div class="util-file">paw.py</div>
+    <ul>
+      <li>calc_expected_nw(age, income)</li>
+      <li>get_paw_status(actual, expected)</li>
+      <li>calc_savings_rate(income, expenses)</li>
+      <li>calc_multiplier(actual, expected)</li>
+    </ul>
   </div>
-  <div class="screen-card">
-    <div class="screen-icon">💰</div>
-    <div class="screen-route">GET/POST /budget</div>
-    <h3>Annual Budget</h3>
-    <p>กรอก/แก้ budget รายหมวด ดู actual vs budget</p>
+  <div class="util-card">
+    <div class="util-file">db_helpers.py</div>
+    <ul>
+      <li>fetch_one(sql, params)</li>
+      <li>fetch_all(sql, params)</li>
+      <li>execute(sql, params)</li>
+      <li>upsert(table, data, conflict_cols)</li>
+    </ul>
   </div>
-  <div class="screen-card">
-    <div class="screen-icon">📅</div>
-    <div class="screen-route">GET/POST /monthly</div>
-    <h3>Monthly Log</h3>
-    <p>กรอกรายเดือน — รายได้ รายจ่าย net worth note</p>
+  <div class="util-card">
+    <div class="util-file">excel.py</div>
+    <ul>
+      <li>export_workbook(year) → BytesIO</li>
+      <li>build_budget_sheet(wb, year)</li>
+      <li>build_monthly_sheet(wb, year)</li>
+      <li>build_dashboard_sheet(wb, year)</li>
+    </ul>
   </div>
-  <div class="screen-card">
-    <div class="screen-icon">🎯</div>
-    <div class="screen-route">GET/POST /goals</div>
-    <h3>Goals Matrix</h3>
-    <p>เพิ่ม/แก้/ติดสถานะเป้าหมายทั้ง 5 horizon</p>
-  </div>
-  <div class="screen-card">
-    <div class="screen-icon">⏱️</div>
-    <div class="screen-route">GET/POST /planning</div>
-    <h3>Planning Time</h3>
-    <p>บันทึกชั่วโมงวางแผนการเงินรายเดือน</p>
-  </div>
-  <div class="screen-card">
-    <div class="screen-icon">📝</div>
-    <div class="screen-route">GET/POST /review</div>
-    <h3>Annual Review</h3>
-    <p>ตอบคำถามทบทวนประจำปีทีละข้อ</p>
-  </div>
-  <div class="screen-card">
-    <div class="screen-icon">📤</div>
-    <div class="screen-route">GET /export</div>
-    <h3>Export Excel</h3>
-    <p>ดึงข้อมูลจาก DB → สร้างไฟล์ .xlsx ให้ download</p>
-  </div>
-</div>
-
-<hr>
-
-<!-- HOW TO RUN -->
-<div class="sec-label">Startup</div>
-<h2>วิธีเปิดใช้งาน</h2>
-<div class="startup-box">
-  <div class="cmd">
-    <span class="prompt"># ติดตั้งครั้งแรก</span><br>
-    <span class="command">pip install flask openpyxl</span><br><br>
-    <span class="prompt"># รันทุกครั้งที่จะใช้</span><br>
-    <span class="command">python app.py</span><br><br>
-    <span class="prompt"># แล้วเปิด browser ไปที่</span><br>
-    <span class="command">http://localhost:5000</span>
+  <div class="util-card">
+    <div class="util-file">date_helpers.py</div>
+    <ul>
+      <li>current_year() → int</li>
+      <li>current_month() → int</li>
+      <li>months_list() → list[str]</li>
+      <li>years_available(db) → list[int]</li>
+    </ul>
   </div>
 </div>
 
 <hr>
 
-<!-- OPEN DECISIONS -->
-<div class="sec-label">ก่อน Code</div>
-<h2>3 จุดที่ต้อง confirm ก่อน</h2>
-<div class="decisions">
-  <div class="dec">
-    <div class="dec-num">1</div>
+<!-- REQUEST FLOW -->
+<div class="sec-label">Request Flow — ตัวอย่างเมื่อกรอก Monthly Log</div>
+<div class="flow-box">
+  <div class="flow-row">
+    <span class="flow-label">User action</span>
+    <span class="fnode fn-gray">กรอก Monthly Log กด Save</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label">HTTP</span>
+    <span class="fnode fn-red">POST /monthly</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-blue">src/routes/monthly.py</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label">Utils</span>
+    <span class="fnode fn-blue">monthly.py</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-green">utils/db_helpers.upsert()</span>
+    <span class="arrow">+</span>
+    <span class="fnode fn-green">utils/paw.calc_savings_rate()</span>
+  </div>
+  <div class="flow-row">
+    <span class="flow-label">DB</span>
+    <span class="fnode fn-green">db_helpers</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-gold">data/mnd-data.db</span>
+    <span class="arrow">→</span>
+    <span class="fnode fn-gray">redirect → GET /monthly</span>
+  </div>
+</div>
+
+<hr>
+
+<!-- OPEN QUESTIONS -->
+<div class="sec-label">ก่อน Code — ยืนยัน 3 จุดนี้</div>
+<div class="q-list">
+  <div class="q-item">
+    <div class="q-num">1</div>
     <div>
-      <strong>Port และ year default</strong>
-      <span>ใช้ port 5000 ได้เลย? และ default year ควรดึงจาก system date หรือให้ user เลือกเองทุกครั้ง?</span>
+      <strong>src/routes/ กับ src/utils/ — โอเคกับ structure นี้ไหม?</strong>
+      <span>หรืออยากปรับชื่อ / เพิ่ม layer เช่น <code>src/models/</code> สำหรับ DB schema definitions แยกต่างหาก?</span>
     </div>
   </div>
-  <div class="dec">
-    <div class="dec-num">2</div>
+  <div class="q-item">
+    <div class="q-num">2</div>
     <div>
-      <strong>DB อยู่ที่ไหน</strong>
-      <span>สร้าง <code>data/mnd-data.db</code> ที่ root repo ได้เลย หรืออยากเลือก path เองตอน startup?</span>
+      <strong>เริ่ม build จากไหนก่อน?</strong>
+      <span>แนะนำ: <code>run.py</code> + <code>src/app.py</code> + <code>src/db.py</code> + <code>src/utils/</code> ทั้งหมด → แล้วค่อย build ทีละ route โดยเริ่มจาก Dashboard + Monthly Log</span>
     </div>
   </div>
-  <div class="dec">
-    <div class="dec-num">3</div>
+  <div class="q-item">
+    <div class="q-num">3</div>
     <div>
-      <strong>เริ่ม build จากหน้าไหนก่อน</strong>
-      <span>แนะนำ: <strong>Dashboard + Monthly Log</strong> ก่อน เพราะเป็น core loop รายเดือน — เห็นผลเร็ว แล้วค่อยต่อ Budget, Goals ทีหลัง</span>
+      <strong>DB สร้างอัตโนมัติตอน run ครั้งแรก โอเคไหม?</strong>
+      <span><code>src/db.py</code> จะ check ว่ามี <code>data/mnd-data.db</code> ไหม ถ้าไม่มีก็สร้างพร้อม schema ให้เลย ไม่ต้องรัน migration แยก</span>
     </div>
   </div>
 </div>
