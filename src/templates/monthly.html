@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% set active = 'monthly' %}
+{% block title %}Monthly Log — MND{% endblock %}
+{% block content %}
+
+<div class="page-header flex-center justify-between">
+  <div>
+    <h1>Monthly Log</h1>
+    <p>กรอกรายรับ รายจ่าย Net Worth ทุกเดือน (~15 นาที)</p>
+  </div>
+  <form class="year-selector" method="GET">
+    <label>ปี</label>
+    <select class="form-control" name="year" onchange="this.form.submit()">
+      {% for y in years %}<option {% if y==year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+
+<!-- SUMMARY ROW -->
+<div class="grid-4 mb-2">
+  <div class="card card-sm">
+    <div class="card-title">รายได้รวม</div>
+    <div class="card-value font-mono">฿{{ total_income | fmt_num }}</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">รายจ่ายรวม</div>
+    <div class="card-value font-mono">฿{{ total_expenses | fmt_num }}</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">Savings Rate เฉลี่ย</div>
+    <div class="card-value {% if avg_rate >= 20 %}text-green{% elif avg_rate >= 10 %}text-gold{% else %}text-accent{% endif %}">
+      {{ avg_rate | fmt_pct }}
+    </div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">Net Worth ล่าสุด</div>
+    <div class="card-value font-mono">฿{{ latest_nw | fmt_num }}</div>
+  </div>
+</div>
+
+<!-- MONTH GRID -->
+<div class="grid-3">
+  {% for m in months %}
+  {% set d = m.data %}
+  <div class="card card-sm" style="cursor:pointer;" onclick="openModal('modal-{{ m.num }}')">
+    <div class="flex-center justify-between mb-1">
+      <div style="font-weight:700; color:var(--white);">{{ m.name }}</div>
+      {% if d %}
+        <span class="badge {% if d.savings_rate >= 20 %}done{% elif d.savings_rate >= 10 %}aaw{% else %}uaw{% endif %}" style="font-size:.7rem;">
+          {{ d.savings_rate | fmt_pct }}
+        </span>
+      {% elif m.num == current_month %}
+        <span class="badge active" style="font-size:.7rem;">เดือนนี้</span>
+      {% endif %}
+    </div>
+    {% if d %}
+      <div class="font-mono text-green" style="font-size:.9rem;">฿{{ d.net_worth | fmt_num }}</div>
+      <div style="font-size:.75rem; color:var(--gray); margin-top:.2rem;">รายได้ ฿{{ d.income | fmt_num }}</div>
+    {% else %}
+      <div style="color:var(--gray); font-size:.8rem;">ยังไม่ได้กรอก</div>
+    {% endif %}
+  </div>
+
+  <!-- MODAL for each month -->
+  <div class="modal-overlay" id="modal-{{ m.num }}">
+    <div class="modal">
+      <div class="modal-title">{{ m.name }} {{ year }}</div>
+      <form method="POST" action="{{ url_for('monthly.save') }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <input type="hidden" name="month" value="{{ m.num }}">
+        <div style="display:flex; flex-direction:column; gap:.85rem;">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">รายได้ (฿)</label>
+              <input id="income" class="form-control" type="number" name="income"
+                     value="{{ d.income if d else '' }}" step="0.01" min="0"
+                     oninput="calcSavingsRate()" placeholder="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label">รายจ่าย (฿)</label>
+              <input id="expenses" class="form-control" type="number" name="expenses"
+                     value="{{ d.expenses if d else '' }}" step="0.01" min="0"
+                     oninput="calcSavingsRate()" placeholder="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Savings Rate</label>
+            <div class="card card-sm" style="padding:.5rem .85rem;">
+              <span id="savings_rate_display" class="font-bold font-mono {% if d and d.savings_rate >= 20 %}text-green{% elif d and d.savings_rate >= 10 %}text-gold{% else %}text-accent{% endif %}">
+                {% if d %}{{ d.savings_rate | fmt_pct }}{% else %}—{% endif %}
+              </span>
+              <span style="font-size:.75rem; color:var(--gray);"> คำนวณอัตโนมัติ</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Net Worth ณ สิ้นเดือน (฿)</label>
+            <input class="form-control" type="number" name="net_worth"
+                   value="{{ d.net_worth if d else '' }}" step="0.01" min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">หมวดที่บานปลายมากสุด</label>
+            <input class="form-control" type="text" name="top_overspend"
+                   value="{{ d.top_overspend if d else '' }}" placeholder="เช่น อาหารนอกบ้าน">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Note / Lesson ของเดือน</label>
+            <textarea class="form-control" name="note" rows="2"
+                      placeholder="บทเรียนหรือสิ่งที่อยากจำไว้...">{{ d.note if d else '' }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-{{ m.num }}')">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% set active = 'review' %}
+{% block title %}Annual Review — MND{% endblock %}
+{% block content %}
+
+<div class="page-header flex-center justify-between">
+  <div>
+    <h1>Annual Review {{ year }}</h1>
+    <p>คำถามทบทวนประจำปี — ตอบให้ครบเพื่อ close ปีอย่างมีคุณภาพ</p>
+  </div>
+  <form class="year-selector" method="GET">
+    <label>ปี</label>
+    <select class="form-control" name="year" onchange="this.form.submit()">
+      {% for y in years %}<option {% if y==year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+
+<!-- PROGRESS -->
+<div class="card mb-2" style="padding:1rem 1.25rem;">
+  <div class="flex-center justify-between mb-1">
+    <span style="font-size:.85rem; font-weight:600;">ตอบแล้ว {{ answered }} / {{ total_q }} คำถาม</span>
+    <span class="font-mono {% if answered == total_q %}text-green{% else %}text-gold{% endif %}">
+      {{ (answered / total_q * 100) | int if total_q else 0 }}%
+    </span>
+  </div>
+  <div class="prog-wrap" style="height:10px;">
+    <div class="prog-bar {% if answered == total_q %}green{% else %}gold{% endif %}"
+         style="width:{{ (answered / total_q * 100) | int if total_q else 0 }}%;"></div>
+  </div>
+</div>
+
+<form method="POST" action="{{ url_for('review.save') }}">
+  <input type="hidden" name="year" value="{{ year }}">
+
+  {% for sec_key, sec_title, questions in sections %}
+  <div class="review-section">
+    <div class="review-section-title">{{ sec_title }}</div>
+    {% for q_key, q_label in questions %}
+    <div class="review-q">
+      <div class="review-q-label">{{ q_label }}</div>
+      <textarea class="form-control" name="{{ q_key }}" rows="2"
+                placeholder="กรอกคำตอบ...">{{ answers.get(q_key, '') }}</textarea>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  <div class="mt-2 flex gap-1">
+    <button class="btn btn-primary" type="submit">💾 บันทึก Annual Review</button>
+  </div>
+</form>
+
+{% endblock %}

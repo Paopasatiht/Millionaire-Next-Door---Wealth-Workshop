@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% set active = 'goals' %}
+{% block title %}Goals — MND{% endblock %}
+{% block content %}
+
+<div class="page-header flex-center justify-between">
+  <div>
+    <h1>Goals Matrix</h1>
+    <p>เป้าหมาย 5 time horizons — daily จนถึง lifetime</p>
+  </div>
+  <button class="btn btn-primary" onclick="openModal('modal-add')">+ เพิ่ม Goal</button>
+</div>
+
+{% for h, label, icon in horizons %}
+{% set g = grouped[h] %}
+<div class="horizon-block">
+  <div class="horizon-header">
+    <span class="horizon-icon">{{ icon }}</span>
+    <span class="horizon-label">{{ label }}</span>
+    <span class="horizon-count">{{ g.done }}/{{ g.total }} done</span>
+    {% if g.total > 0 %}
+    <div class="prog-wrap" style="width:80px;">
+      <div class="prog-bar green" style="width:{{ (g.done / g.total * 100) | int }}%;"></div>
+    </div>
+    {% endif %}
+  </div>
+  {% if g.goals %}
+    {% for goal in g.goals %}
+    <div class="goal-row">
+      <form method="POST" action="{{ url_for('goals.toggle_status', goal_id=goal.id) }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <input type="hidden" name="status" value="{{ goal.status }}">
+        <button type="submit" class="btn btn-ghost btn-sm" style="padding:.25rem .5rem; min-width:28px;">
+          {% if goal.status == 'done' %}✅{% else %}⬜{% endif %}
+        </button>
+      </form>
+      <div style="flex:1;">
+        <div class="goal-text {% if goal.status == 'done' %}text-gray{% endif %}"
+             style="{% if goal.status == 'done' %}text-decoration:line-through;{% endif %}">
+          {{ goal.goal_text }}
+        </div>
+        {% if goal.target_detail %}
+          <div class="goal-detail">{{ goal.target_detail }}</div>
+        {% endif %}
+      </div>
+      {% if goal.deadline %}
+        <div class="goal-deadline">📅 {{ goal.deadline }}</div>
+      {% endif %}
+      <span class="badge {{ goal.status if goal.status in ['done','active'] else 'drop' }}">
+        {{ goal.status }}
+      </span>
+      <form method="POST" action="{{ url_for('goals.delete', goal_id=goal.id) }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('ลบ goal นี้?')"
+                style="padding:.2rem .45rem;">✕</button>
+      </form>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="goal-row" style="justify-content:center;">
+      <span class="text-gray" style="font-size:.85rem;">ยังไม่มี goal ในช่วงนี้ — กด "+ เพิ่ม Goal" เพื่อเริ่ม</span>
+    </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-title">เพิ่ม Goal ใหม่</div>
+    <form method="POST" action="{{ url_for('goals.add') }}">
+      <input type="hidden" name="year" value="{{ year }}">
+      <div style="display:flex; flex-direction:column; gap:.85rem;">
+        <div class="form-group">
+          <label class="form-label">Time Horizon</label>
+          <select class="form-control" name="horizon" required>
+            {% for h, label, icon in horizons %}
+            <option value="{{ h }}">{{ icon }} {{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Goal</label>
+          <input class="form-control" type="text" name="goal_text" placeholder="ระบุ goal..." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">รายละเอียด / Target (ไม่บังคับ)</label>
+          <input class="form-control" type="text" name="target_detail" placeholder="เช่น ฿300,000 / 10%">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline (ไม่บังคับ)</label>
+          <input class="form-control" type="text" name="deadline" placeholder="เช่น ธ.ค. 2026">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-add')">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary">เพิ่ม Goal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% set active = 'dashboard' %}
+{% block title %}Dashboard — MND Wealth Workshop{% endblock %}
+{% block content %}
+
+<div class="page-header flex-center justify-between">
+  <div>
+    <h1>สวัสดี, {{ profile.name }} 👋</h1>
+    <p>ภาพรวมความมั่งคั่งปี {{ year }}</p>
+  </div>
+  <a href="{{ url_for('dashboard.setup') }}" class="btn btn-ghost btn-sm">แก้ไขโปรไฟล์</a>
+</div>
+
+<!-- PAW STATUS + NET WORTH -->
+<div class="grid-2 mb-2">
+  <div class="card">
+    <div class="card-title">PAW Status {{ year }}</div>
+    <div class="card-value lg">
+      <span class="badge {{ paw.css }}">
+        {% if paw.css == 'paw' %}🏆{% elif paw.css == 'aaw' %}📊{% else %}⚠️{% endif %}
+        {{ paw.label }}
+      </span>
+    </div>
+    <div class="card-sub mt-1">
+      Multiplier <strong class="font-mono">{{ paw.multiplier }}×</strong>
+      &nbsp;·&nbsp; Expected <strong class="font-mono">฿{{ expected | fmt_num }}</strong>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Net Worth ล่าสุด</div>
+    <div class="card-value lg font-mono">฿{{ net_worth | fmt_num }}</div>
+    <div class="card-sub mt-1">อายุ {{ age }} ปี &nbsp;·&nbsp; รายได้/ปี ฿{{ profile.annual_income | fmt_num }}</div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="grid-4 mb-2">
+  <div class="card card-sm">
+    <div class="card-title">Savings Rate เฉลี่ย</div>
+    <div class="card-value {% if avg_savings >= 20 %}text-green{% elif avg_savings >= 10 %}text-gold{% else %}text-accent{% endif %}">
+      {{ avg_savings | fmt_pct }}
+    </div>
+    <div class="card-sub">target ≥ 20%</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">Planning hrs/เดือน</div>
+    <div class="card-value {% if avg_planning >= 8 %}text-green{% else %}text-gold{% endif %}">
+      {{ avg_planning }}
+    </div>
+    <div class="card-sub">target ≥ 8 ชั่วโมง</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">Goals สำเร็จ</div>
+    <div class="card-value">{{ goals_done }}<span style="font-size:1rem;color:var(--gray)">/{{ goals_total }}</span></div>
+    <div class="card-sub">ทุก horizon</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">เดือนที่กรอก Log</div>
+    <div class="card-value">{{ months_logged }}<span style="font-size:1rem;color:var(--gray)">/12</span></div>
+    <div class="card-sub">ปี {{ year }}</div>
+  </div>
+</div>
+
+<!-- NET WORTH CHART -->
+<div class="card mb-2">
+  <div class="flex-center justify-between mb-1">
+    <div class="section-title" style="margin:0">Net Worth รายเดือน {{ year }}</div>
+    <a href="{{ url_for('monthly.index', year=year) }}" class="btn btn-ghost btn-sm">กรอกข้อมูล →</a>
+  </div>
+  <div class="chart-wrap">
+    {% for d in chart_data %}
+    <div class="chart-bar-col">
+      <div class="chart-bar {% if d.nw > 0 %}{% if loop.last %}text-green{% endif %}{% endif %}"
+           style="height:{{ (d.nw / chart_max * 100) | int }}%;
+                  background:{% if d.nw > 0 %}{% if loop.index <= months_logged %}var(--green){% else %}var(--border2){% endif %}{% else %}var(--border){% endif %};
+                  opacity:{% if d.nw > 0 %}1{% else %}0.3{% endif %};">
+      </div>
+      <div class="chart-label">{{ d.month }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- QUICK LINKS -->
+<div class="grid-3">
+  <a href="{{ url_for('monthly.index', year=year) }}" class="card card-sm" style="text-decoration:none;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(233,69,96,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div class="section-title">Monthly Log</div>
+    <div style="color:var(--gray);font-size:.85rem;">กรอกรายได้ รายจ่าย Net Worth ประจำเดือน</div>
+  </a>
+  <a href="{{ url_for('goals.index') }}" class="card card-sm" style="text-decoration:none;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(233,69,96,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div class="section-title">Goals Matrix</div>
+    <div style="color:var(--gray);font-size:.85rem;">ทบทวนเป้าหมาย 5 time horizons</div>
+  </a>
+  <a href="{{ url_for('review.index', year=year) }}" class="card card-sm" style="text-decoration:none;transition:border-color .15s;" onmouseover="this.style.borderColor='rgba(233,69,96,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div class="section-title">Annual Review</div>
+    <div style="color:var(--gray);font-size:.85rem;">คำถามทบทวนสิ้นปีแบบ guided</div>
+  </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Setup — MND Wealth Workshop{% endblock %}
+{% block content %}
+<div style="max-width:480px; margin:4rem auto;">
+  <div class="card">
+    <div style="text-align:center; margin-bottom:2rem;">
+      <div style="font-size:2.5rem; margin-bottom:.75rem;">🏦</div>
+      <h1 style="font-size:1.4rem; color:var(--white); margin-bottom:.4rem;">ยินดีต้อนรับสู่ MND Wealth Workshop</h1>
+      <p style="color:var(--gray); font-size:.9rem;">กรอกข้อมูลเบื้องต้นเพื่อเริ่มต้น — ใช้คำนวณ PAW/UAW status</p>
+    </div>
+    <form method="POST" action="{{ url_for('dashboard.setup') }}">
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">ชื่อ</label>
+          <input class="form-control" type="text" name="name" placeholder="ชื่อของคุณ" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ปีเกิด (ค.ศ.)</label>
+          <input class="form-control" type="number" name="birth_year" placeholder="เช่น 1990" min="1940" max="2005" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">รายได้ก่อนภาษีต่อปี (฿)</label>
+          <input class="form-control" type="number" name="annual_income" placeholder="เช่น 1200000" min="0" required>
+          <small style="color:var(--gray); font-size:.75rem;">ใช้สำหรับคำนวณ Expected Net Worth ตามสูตร MND เท่านั้น</small>
+        </div>
+        <button class="btn btn-primary" type="submit" style="margin-top:.5rem;">เริ่มต้นใช้งาน →</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

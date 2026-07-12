@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% set active = 'planning' %}
+{% block title %}Planning Time — MND{% endblock %}
+{% block content %}
+
+<div class="page-header flex-center justify-between">
+  <div>
+    <h1>Planning Time Log</h1>
+    <p>บันทึกชั่วโมงวางแผนการเงินรายเดือน — target ≥ {{ target }} ชั่วโมง/เดือน</p>
+  </div>
+  <form class="year-selector" method="GET">
+    <label>ปี</label>
+    <select class="form-control" name="year" onchange="this.form.submit()">
+      {% for y in years %}<option {% if y==year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+  </form>
+</div>
+
+<!-- SUMMARY -->
+<div class="grid-3 mb-2">
+  <div class="card card-sm">
+    <div class="card-title">รวมทั้งปี</div>
+    <div class="card-value">{{ total_hours }} <span style="font-size:1rem;color:var(--gray)">ชม.</span></div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">เฉลี่ย/เดือน</div>
+    <div class="card-value {% if avg_hours >= target %}text-green{% else %}text-gold{% endif %}">
+      {{ avg_hours }} <span style="font-size:1rem;color:var(--gray)">ชม.</span>
+    </div>
+    <div class="card-sub">target {{ target }} ชม.</div>
+  </div>
+  <div class="card card-sm">
+    <div class="card-title">เดือนที่ hit target</div>
+    <div class="card-value {% if months_hit >= 8 %}text-green{% elif months_hit >= 4 %}text-gold{% else %}text-accent{% endif %}">
+      {{ months_hit }}<span style="font-size:1rem;color:var(--gray)">/12</span>
+    </div>
+  </div>
+</div>
+
+<!-- MONTH GRID -->
+<div class="grid-3">
+  {% for m in months %}
+  {% set d = m.data %}
+  {% set hrs = d.hours if d else 0 %}
+  <div class="month-card {% if hrs >= target %}hit{% elif hrs > 0 %}miss{% else %}empty{% endif %}"
+       onclick="openModal('pmodal-{{ m.num }}')">
+    <div class="flex-center justify-between">
+      <div class="month-name">{{ m.name }}</div>
+      {% if m.num == current_month %}
+        <span class="badge active" style="font-size:.68rem;">เดือนนี้</span>
+      {% endif %}
+    </div>
+    <div class="month-hours {% if hrs >= target %}hit{% elif hrs > 0 %}miss{% else %}{% endif %}">
+      {{ hrs if hrs else '—' }}{% if hrs %} ชม.{% endif %}
+    </div>
+    <div class="month-target">target {{ target }} ชม.
+      {% if hrs >= target %} ✓{% endif %}
+    </div>
+    {% if d and d.topics %}
+      <div style="font-size:.72rem; color:var(--gray); margin-top:.35rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        📚 {{ d.topics }}
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="pmodal-{{ m.num }}">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-title">{{ m.name }} {{ year }}</div>
+      <form method="POST" action="{{ url_for('planning.save') }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <input type="hidden" name="month" value="{{ m.num }}">
+        <div style="display:flex; flex-direction:column; gap:.85rem;">
+          <div class="form-group">
+            <label class="form-label">ชั่วโมงวางแผนการเงิน</label>
+            <input class="form-control" type="number" name="hours" step="0.5" min="0"
+                   value="{{ d.hours if d else '' }}" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">กิจกรรมที่ทำ</label>
+            <input class="form-control" type="text" name="activities"
+                   value="{{ d.activities if d else '' }}"
+                   placeholder="เช่น อ่านหนังสือ, ดู YouTube, วางแผนพอร์ต">
+          </div>
+          <div class="form-group">
+            <label class="form-label">หัวข้อที่ศึกษา</label>
+            <input class="form-control" type="text" name="topics"
+                   value="{{ d.topics if d else '' }}"
+                   placeholder="เช่น DCA, กองทุนรวม, อสังหาริมทรัพย์">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Key Insight สำคัญ</label>
+            <textarea class="form-control" name="key_insight" rows="2"
+                      placeholder="สิ่งที่ได้เรียนรู้ที่สำคัญที่สุดเดือนนี้...">{{ d.key_insight if d else '' }}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">แหล่งความรู้ (หนังสือ, Podcast, YouTube)</label>
+            <input class="form-control" type="text" name="source"
+                   value="{{ d.source if d else '' }}"
+                   placeholder="เช่น The Psychology of Money, Investory">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('pmodal-{{ m.num }}')">ยกเลิก</button>
+          <button type="submit" class="btn btn-primary">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MND Wealth Workshop{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="{{ url_for('dashboard.index') }}">MND <span>Wealth</span></a>
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard.index') }}"  {% if active=='dashboard' %}class="active"{% endif %}>Dashboard</a>
+    <a href="{{ url_for('monthly.index') }}"    {% if active=='monthly' %}class="active"{% endif %}>Monthly Log</a>
+    <a href="{{ url_for('budget.index') }}"     {% if active=='budget' %}class="active"{% endif %}>Budget</a>
+    <a href="{{ url_for('goals.index') }}"      {% if active=='goals' %}class="active"{% endif %}>Goals</a>
+    <a href="{{ url_for('planning.index') }}"   {% if active=='planning' %}class="active"{% endif %}>Planning</a>
+    <a href="{{ url_for('review.index') }}"     {% if active=='review' %}class="active"{% endif %}>Review</a>
+  </div>
+  <a class="nav-export" href="{{ url_for('export.export') }}">⬇ Export Excel</a>
+</nav>
+
+<div class="page">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for cat, msg in messages %}
+          <li class="flash {{ cat }}">{{ msg }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
