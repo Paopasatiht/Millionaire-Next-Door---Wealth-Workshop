@@ -71,10 +71,11 @@ def add_category():
     year     = request.form.get('year', type=int)
     category = request.form.get('category', '').strip()
     sub      = request.form.get('sub_category', '').strip()
+    monthly_budget = request.form.get('monthly_budget', 0, type=float)
     if category and sub:
         execute(
-            "INSERT INTO budget_categories (year, category, sub_category) VALUES (?,?,?)",
-            (year, category, sub)
+            "INSERT INTO budget_categories (year, category, sub_category, monthly_budget) VALUES (?,?,?,?)",
+            (year, category, sub, monthly_budget)
         )
         flash('เพิ่มหมวดสำเร็จ', 'success')
     return redirect(url_for('budget.index', year=year))

@@ -111,6 +111,15 @@ def init_db():
             updated_at   TEXT DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(year, question_key)
         );
+
+        CREATE TABLE IF NOT EXISTS monthly_expense_detail (
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            year               INTEGER NOT NULL,
+            month              INTEGER NOT NULL,
+            budget_category_id INTEGER NOT NULL,
+            actual             REAL DEFAULT 0,
+            UNIQUE(year, month, budget_category_id)
+        );
     """)
 
     import datetime

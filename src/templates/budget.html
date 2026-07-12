@@ -6,17 +6,14 @@
 <div class="page-header flex-center justify-between">
   <div>
     <h1>Annual Budget</h1>
-    <p>กำหนด budget รายหมวด และบันทึก actual รายปี</p>
+    <p>กำหนด budget รายหมวด — ตั้งให้เสร็จก่อนกรอก Monthly Log</p>
   </div>
-  <div class="flex gap-1">
-    <form class="year-selector" method="GET">
-      <label>ปี</label>
-      <select class="form-control" name="year" onchange="this.form.submit()">
-        {% for y in years %}<option {% if y==year %}selected{% endif %}>{{ y }}</option>{% endfor %}
-      </select>
-    </form>
-    <button class="btn btn-ghost btn-sm" onclick="openModal('modal-add')">+ เพิ่มหมวด</button>
-  </div>
+  <form class="year-selector" method="GET">
+    <label>ปี</label>
+    <select class="form-control" name="year" onchange="this.form.submit()">
+      {% for y in years %}<option {% if y==year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+    </select>
+  </form>
 </div>
 
 <!-- SUMMARY -->
@@ -40,8 +37,10 @@
   </div>
 </div>
 
-<form method="POST" action="{{ url_for('budget.save') }}">
+<!-- MAIN SAVE FORM (existing rows only) -->
+<form method="POST" action="{{ url_for('budget.save') }}" id="main-form">
   <input type="hidden" name="year" value="{{ year }}">
+
   {% for category, rows in grouped.items() %}
   <div class="mb-2">
     <div style="font-size:.78rem;font-weight:700;color:var(--gold);text-transform:uppercase;
@@ -51,12 +50,12 @@
         <thead>
           <tr>
             <th>Sub-category</th>
-            <th>Budget/เดือน (฿)</th>
-            <th>Budget/ปี (฿)</th>
-            <th>Actual YTD (฿)</th>
-            <th>Variance (฿)</th>
-            <th style="min-width:120px;">% ใช้ไป</th>
-            <th></th>
+            <th style="width:140px;">Budget/เดือน (฿)</th>
+            <th style="width:130px;">Budget/ปี (฿)</th>
+            <th style="width:130px;">Actual YTD (฿)</th>
+            <th style="width:110px;">Variance (฿)</th>
+            <th style="width:140px;">% ใช้ไป</th>
+            <th style="width:60px;"></th>
           </tr>
         </thead>
         <tbody>
@@ -72,19 +71,13 @@
                      style="width:120px;">
             </td>
             <td class="td-right font-mono" data-annual="{{ r.id }}">{{ r.annual_budget | fmt_num }}</td>
-            <td>
-              <input class="form-control font-mono" type="number" step="0.01" min="0"
-                     name="actual_ytd_{{ r.id }}"
-                     data-actual="{{ r.id }}"
-                     value="{{ r.actual_ytd or '' }}" placeholder="0"
-                     style="width:120px;">
-            </td>
+            <td class="td-right font-mono text-gray">{{ r.actual_ytd | fmt_num }}</td>
             <td class="td-right font-mono {% if r.variance < 0 %}text-accent{% else %}text-green{% endif %}">
               {% if r.variance >= 0 %}+{% endif %}{{ r.variance | fmt_num }}
             </td>
             <td>
               <div class="flex-center gap-1">
-                <span data-pct="{{ r.id }}" class="font-mono" style="font-size:.8rem;min-width:36px;">{{ r.pct }}%</span>
+                <span data-pct="{{ r.id }}" style="font-size:.8rem;min-width:36px;" class="font-mono">{{ r.pct }}%</span>
                 <div class="prog-wrap" style="flex:1;">
                   <div class="prog-bar {{ 'red' if r.pct > 100 else 'gold' if r.pct > 80 else 'green' }}"
                        data-bar="{{ r.id }}" style="width:{{ [r.pct, 100] | min }}%;"></div>
@@ -94,39 +87,67 @@
             <td>
               <form method="POST" action="{{ url_for('budget.delete_category', row_id=r.id) }}" style="display:inline;">
                 <input type="hidden" name="year" value="{{ year }}">
-                <button class="btn btn-danger btn-sm" type="submit" onclick="return confirm('ลบหมวดนี้?')">ลบ</button>
+                <button class="btn btn-danger btn-sm" type="submit"
+                        onclick="return confirm('ลบ {{ r.sub_category }}?')">✕</button>
               </form>
             </td>
           </tr>
           {% endfor %}
         </tbody>
+
+        <!-- INLINE ADD ROW -->
+        <tfoot>
+          <tr style="background:rgba(255,255,255,.02);">
+            <td colspan="7" style="padding:.5rem .75rem;">
+              <form method="POST" action="{{ url_for('budget.add_category') }}"
+                    style="display:flex; align-items:center; gap:.6rem;">
+                <input type="hidden" name="year"     value="{{ year }}">
+                <input type="hidden" name="category" value="{{ category }}">
+                <span style="color:var(--green); font-size:.85rem; font-weight:700;">+</span>
+                <input class="form-control" type="text" name="sub_category"
+                       placeholder="ชื่อ sub-category ใหม่..."
+                       style="flex:1; max-width:220px;" required>
+                <input class="form-control font-mono" type="number" step="0.01" min="0"
+                       name="monthly_budget" placeholder="฿/เดือน"
+                       style="width:110px;">
+                <button class="btn btn-ghost btn-sm" type="submit">เพิ่ม</button>
+              </form>
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   </div>
   {% endfor %}
-  <div class="mt-2">
-    <button class="btn btn-primary" type="submit">💾 บันทึกทั้งหมด</button>
+
+  <div class="mt-2 flex gap-1">
+    <button class="btn btn-primary" type="submit">💾 บันทึก Budget ทั้งหมด</button>
+    <button class="btn btn-ghost" type="button" onclick="openModal('modal-newcat')">+ หมวดหลักใหม่</button>
   </div>
 </form>
 
-<!-- ADD CATEGORY MODAL -->
-<div class="modal-overlay" id="modal-add">
+<!-- ADD NEW CATEGORY GROUP MODAL -->
+<div class="modal-overlay" id="modal-newcat">
   <div class="modal">
-    <div class="modal-title">เพิ่มหมวดรายจ่าย</div>
+    <div class="modal-title">เพิ่มหมวดหลักใหม่</div>
     <form method="POST" action="{{ url_for('budget.add_category') }}">
       <input type="hidden" name="year" value="{{ year }}">
       <div style="display:flex; flex-direction:column; gap:.85rem;">
         <div class="form-group">
-          <label class="form-label">หมวดหลัก</label>
-          <input class="form-control" type="text" name="category" placeholder="เช่น อาหาร, การเดินทาง" required>
+          <label class="form-label">ชื่อหมวดหลัก (ใหม่)</label>
+          <input class="form-control" type="text" name="category" placeholder="เช่น สัตว์เลี้ยง, ธุรกิจส่วนตัว" required>
         </div>
         <div class="form-group">
-          <label class="form-label">Sub-category</label>
-          <input class="form-control" type="text" name="sub_category" placeholder="เช่น อาหารที่บ้าน" required>
+          <label class="form-label">Sub-category แรก</label>
+          <input class="form-control" type="text" name="sub_category" placeholder="ระบุอย่างน้อย 1 รายการ" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Budget/เดือน (฿)</label>
+          <input class="form-control font-mono" type="number" step="0.01" min="0" name="monthly_budget" placeholder="0">
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-add')">ยกเลิก</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-newcat')">ยกเลิก</button>
         <button type="submit" class="btn btn-primary">เพิ่ม</button>
       </div>
     </form>
